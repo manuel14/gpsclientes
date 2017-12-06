@@ -1,0 +1,159 @@
+{% extends 'web/base.html' %}
+{% load staticfiles %}
+{% block extraHead %}
+  <link rel="stylesheet" href="{% static 'web/css/index.css' %}">
+  <link rel="stylesheet" href="{% static 'web/css/toast.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'web/DataTables/datatables.min.css' %}"/>  
+  <link rel="stylesheet" type="text/css" href="{% static 'web/DataTables/dataTables.bootstrap4.min.css' %}"/>  
+  <link rel="stylesheet" type="text/css" href="{% static 'web/DataTables/responsive.bootstrap4.min.css' %}"/>  
+{% endblock extraHead %}
+  
+{% block content %}
+<div class="container-fluid">
+      <div class="row">
+          <div class="col col-sm-9 offset-4 mt-3 mb-3">
+              <h1>Clientes</h1>
+          </div>
+      </div>
+      <div class="row">
+        <form method="post" id="clientes" class="col-12" action="">
+        {% csrf_token %}
+            <div class="table-responsive">
+              <table id="tb_clientes" class="table table-hover">
+                  <thead class="thead-dark ">
+                      <tr>
+                        <th data-field="clientenro">Número de cliente</th>
+                        <th data-field="nombre">Nombre</th> 
+                        <th data-field="direccion">Dirección</th>
+                        <th data-field="posicion">Posición</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {% for cliente in clientes %}
+                          <tr>
+                              <td >{{cliente.clientenro}}</td>
+                              <td >{{cliente.nombre}}</td>
+                              <td >{{cliente.direccion}}</td>
+                              <td ><button value="{{cliente.clientenro}}" id="{{cliente.clientenro}}" type="button" class="btn btn-primary">Obtener Posición</button></td>
+                          </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+            </div>
+      </form>
+    </div>
+    
+</div>
+<div id="snackbar">Dirección guardada correctamente</div>
+{% endblock content %}
+{% block extraScripts %}
+  <script type="text/javascript" charset="utf8" src="{% static 'web/DataTables/datatables.min.js' %}"></script>
+  <script type="text/javascript" charset="utf8" src="{% static 'web/DataTables/jquery.dataTables.min.js' %}"></script>
+  <script type="text/javascript" charset="utf8" src="{% static 'web/DataTables/dataTables.bootstrap4.min.js' %}"></script>
+  <script type="text/javascript" charset="utf8" src="{% static 'web/DataTables/dataTables.responsive.min.js' %}"></script>
+  <script type="text/javascript" charset="utf8" src="{% static 'web/DataTables/responsive.bootstrap4.min.js' %}"></script>
+
+
+	<script> 
+
+    $(document).ready(function(){
+ 
+      $('#tb_clientes').DataTable( 
+        {
+          "language": {
+            "paginate": {
+              "previous": "Anterior",
+              "next": "Siguiente",
+              "last": "Último",
+              "first": "1"
+            },
+            "search": "Buscar"
+          },
+          "processing": true,
+          "serverSide": true,
+          "orderable": false,
+          "pagingType": "full",
+          "ajax": "/web/clientestable/"
+        });
+
+      $('#tb_clientes').on('click', '.btn', function(){
+        var clientenro = $(this).val();
+        var position = getLocation(clientenro);
+      });
+   
+		function getLocation(clientenro) {
+        var clientenro = clientenro;
+    		if (navigator.geolocation) {
+    			var options = {
+					enableHighAccuracy : true,
+					timeout : 10000,
+					maximumAge : 0
+				}
+        navigator.geolocation.getCurrentPosition(success,error, options);
+        		
+		  }
+
+      function success(pos){
+        var lat = pos.coords.latitude;
+        var long = pos.coords.longitude;
+        getPosition(lat, long);
+      }
+
+      function getPosition(lat, long){
+        var position = {lat:lat, long:long};
+        $.post('/web/position/', {"latitud": position.lat, "longitud": position.long, "clientenro": clientenro})  
+          .done(toast());   
+      }
+
+      function error(error){
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            alert("User denied the request for Geolocation.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert("Location information is unavailable.");
+            break;
+          case error.TIMEOUT:
+            alert("The request to get user location timed out.");
+            break;
+          case error.UNKNOWN_ERROR:
+            alert("An unknown error occurred.");
+            break;
+        }
+      }
+    }
+    
+  function toast() {
+    // Get the snackbar DIV
+    var x = document.getElementById("snackbar");
+    // Add the "show" class to DIV
+    x.className = "show";
+    // After 3 seconds, remove the show class from DIV
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 6000);
+  }
+    
+  function getCookie(c_name) {
+      if(document.cookie.length > 0) {
+          c_start = document.cookie.indexOf(c_name + "=");
+          if(c_start != -1) {
+              c_start = c_start + c_name.length + 1;
+              c_end = document.cookie.indexOf(";", c_start);
+              if(c_end == -1) c_end = document.cookie.length;
+              return unescape(document.cookie.substring(c_start,c_end));
+          }
+      }
+      return "";
+  }
+
+  $(function() {
+      $.ajaxSetup({
+          headers: {
+              "X-CSRFToken": getCookie("csrftoken")
+          }
+      });
+  });
+
+  });
+
+  </script>
+{% endblock extraScripts %}

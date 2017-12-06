@@ -1,0 +1,26 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="utf-8">
+	<title>Gps clientes</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" href='{% static "web/css/bootstrap.min.css" %}'>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link rel="stylesheet" href='{% static "web/css/main.css" %}'>
+	{% block extraHead %}{% endblock extraHead %}
+</head>
+<body>
+	<header class="navbar navbar-expand navbar-dark flex-column flex-md-row bd-navbar">	
+		<a class="navbar-brand" href="{% url 'index' %}">
+			<img class="mr-2" style="width:15%;height:50%;" src="{% static 'web/img/logo.png' %}" alt="logo">
+			<h4>Gps clientes</h4></a>
+	
+	</header>
+	{% block content %}{% endblock content %}
+	<script src='{% static "web/js/jquery-3.2.1.min.js" %}'></script>
+	<script src='{% static "web/js/popper.min.js" %}'></script>
+	<script src='{% static "web/js/bootstrap.min.js" %}'></script>
+	{% block extraScripts %}{% endblock extraScripts %}
+</body>
+</html>

@@ -1,0 +1,4 @@
+Django==1.11.1
+-e git+https://bitbucket.org/manuelzubieta/sigabd.git#egg=sigabd
+gunicorn>= 19.6.0
+psycopg2

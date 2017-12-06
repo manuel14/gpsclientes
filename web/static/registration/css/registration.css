@@ -1,0 +1,16 @@
+.content{
+	padding: 45px 15px 15px 15px;
+	background-color:#ccc;
+}
+
+.content:after {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #959595;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    content: "Interfaz de reportes";
+}
