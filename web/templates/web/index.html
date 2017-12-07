@@ -108,16 +108,16 @@
       function error(error){
         switch(error.code) {
           case error.PERMISSION_DENIED:
-            alert("User denied the request for Geolocation.");
+            alert("Debe activar la ubicación gps");
             break;
           case error.POSITION_UNAVAILABLE:
-            alert("Location information is unavailable.");
+            alert("Información de ubicación no disponible");
             break;
           case error.TIMEOUT:
-            alert("The request to get user location timed out.");
+            alert("La petición expiro por timeout");
             break;
           case error.UNKNOWN_ERROR:
-            alert("An unknown error occurred.");
+            alert("Un error desconocido ha occurrido");
             break;
         }
       }
