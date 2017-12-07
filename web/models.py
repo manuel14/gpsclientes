@@ -6,6 +6,7 @@ class Cliente(models.Model):
     direccion = models.CharField(max_length=200)
     latitud = models.FloatField(null=True, blank=True)
     longitud = models.FloatField(null=True, blank=True)
+    precision = models.FloatField(null=True, blank=True)
     clientenro = models.IntegerField(unique=True)
 
     def __str__(self):

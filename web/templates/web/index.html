@@ -96,12 +96,13 @@
       function success(pos){
         var lat = pos.coords.latitude;
         var long = pos.coords.longitude;
-        getPosition(lat, long);
+        var precision = pos.coords.accuracy;
+        getPosition(lat, long, precision);
       }
 
-      function getPosition(lat, long){
+      function getPosition(lat, long, precision){
         var position = {lat:lat, long:long};
-        $.post('/web/position/', {"latitud": position.lat, "longitud": position.long, "clientenro": clientenro})  
+        $.post('/web/position/', {"latitud": position.lat, "longitud": position.long, "clientenro": clientenro, "precision": precision})  
           .done(toast());   
       }
 

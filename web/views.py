@@ -22,11 +22,13 @@ def index(request):
 def position(request):
     lat = request.POST.get("latitud", None)
     lon = request.POST.get("longitud", None)
+    precision = request.POST.get("precision", None)
     clientenro = request.POST.get("clientenro", None)
-    if lat and lon and clientenro:
+    if lat and lon and clientenro and precision:
         cli = Cliente.objects.get(clientenro=clientenro)
         cli.latitud = lat
         cli.longitud = lon
+        cli.precision = precision
         cli.save()
         return HttpResponse(status=200)
 
@@ -40,7 +42,6 @@ def clientestable(request):
     column = [i.name for n, i in enumerate(
         Cliente._meta.get_fields()) if n == order_column][0]
     global_search = request.GET['search[value]']
-    print(global_search)
     if global_search:
         all_objects = Cliente.objects.filter(
             Q(direccion__icontains=global_search)
@@ -54,7 +55,7 @@ def clientestable(request):
 
     for i in all_objects.order_by('clientenro')[start:start + length].values():
         clientenro = str(i["clientenro"])
-        html_pos = "<button type=""button"" id=""{0}"" value=""{0}"" class=""{1}"">Obtener Posición</button>".format(clientenro, "btn btn-primary")
+        html_pos = "<button type=""button"" id=""{0}"" value=""{0}"" class=""{1}"">Obtener Posición</button>".format(clientenro, " btn btn-primary")
         ret=[i[j] if j != 'posicion' else html_pos for j in columns]
         objects.append(ret)
     filtered_count=all_objects.count()
