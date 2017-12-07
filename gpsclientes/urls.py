@@ -17,6 +17,9 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from web import urls as web_urls
 
+handler404 = 'web.views.error404'
+handler500 = 'web.views.error500'
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^web/', include(web_urls)),

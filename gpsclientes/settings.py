@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import raven
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,7 +26,16 @@ SECRET_KEY = '7)n0r_q8+c60_0pgmw_k0lbhc233ouom&k8l$$!uzo4o4mt!=('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ADMINS = [('Admin', 'manuel.zubieta@ushuaiavision.com.ar'),
+          ('Admin', 'sistemas@ushuaiavision.com.ar')]
+
+from django.utils.log import DEFAULT_LOGGING
+DEFAULT_LOGGING['handlers']['mail_admins']['include_html'] = True
+
+RAVEN_CONFIG = {
+    'dsn': 'https://d6a2714e50fa4c7aad368cf960c07cbe:f5d2f31f7a02413a8fee20ad6d07ce43@sentry.io/256221',
+    'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
+}
 
 
 # Application definition
@@ -124,4 +134,68 @@ MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+if DEBUG:
+    ALLOWED_HOSTS = ['*']
+else:
+    ALLOWED_HOSTS = ['geo.ushuaiavision.com.ar', '192.168.50.164', 'localhost']
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'root': {
+        'level': 'WARNING',
+        'handlers': ['sentry'],
+    },
+    'formatters': {
+        'verbose': {
+            'format': '[%(asctime)s] %(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s',
+            'datefmt': '%d/%b/%Y %H:%M:%S'
+        },
+        'simple': {
+            'format': '[%(asctime)s] %(levelname)s %(message)s',
+            'datefmt': '%d/%b/%Y %H:%M:%S'
+        },
+    },
+    'handlers': {
+        'sentry': {
+            'level': 'ERROR',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'tags': {'custom-tag': 'x'},
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'formatter': 'verbose',
+            'filename': 'tmp/log/gpsclientes.log',
+            'when': 'D',
+            'backupCount': 30
+        },
+    },
+    'loggers': {
+        'web.views': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.db.backends': {
+            'level': 'ERROR',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'raven': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['sentry'],
+            'propagate': False,
+        }
+    }
+}
