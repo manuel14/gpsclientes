@@ -19,8 +19,8 @@ def load_clientes():
         clientes.append(
             Cliente(
                 clientenro=ws['A%s' % (r)].value,
-                nombre=ws['B%s' % (r)].value + ws['C%s' % (r)].value,
-                direccion=ws['D%s' % (r)].value + ws['E%s' % (r)].value
+                nombre=ws['B%s' % (r)].value + " " + ws['C%s' % (r)].value,
+                direccion=ws['D%s' % (r)].value + " " + ws['E%s' % (r)].value
             )
         )
     Cliente.objects.bulk_create(clientes)
