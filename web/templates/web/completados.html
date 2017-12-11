@@ -102,7 +102,12 @@
         var lat = pos.coords.latitude;
         var long = pos.coords.longitude;
         var precision = pos.coords.accuracy;
-        getPosition(lat, long, precision);
+        if(precision < 25){
+          getPosition(lat, long, precision);
+        }
+        else{
+          alert("Precisión muy baja. Obtenga nuevamente posición");
+        }
       }
 
       function getPosition(lat, long, precision){

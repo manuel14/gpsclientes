@@ -110,12 +110,16 @@
         var lat = pos.coords.latitude;
         var long = pos.coords.longitude;
         var precision = pos.coords.accuracy;
-        getPosition(lat, long, precision);
+        if(precision < 25){
+          getPosition(lat, long, precision);
+        }
+        else{
+          alert("Precisión muy baja. Obtenga nuevamente posición");
+        }
       }
 
       function getPosition(lat, long, precision){
-        var position = {lat:lat, long:long};
-        $.post('/web/position/', {"latitud": position.lat, "longitud": position.long, "clientenro": clientenro, "precision": precision, "edif_flag": edif_flag})  
+        $.post('/web/position/', {"latitud": lat, "longitud": long, "clientenro": clientenro, "precision": precision, "edif_flag": edif_flag})  
           .done(toast());
           setTimeout(function(){ location.reload(); }, 5000);
       }
