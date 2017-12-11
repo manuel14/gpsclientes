@@ -84,13 +84,6 @@ WSGI_APPLICATION = 'gpsclientes.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -135,8 +128,24 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
     ALLOWED_HOSTS = ['*']
 else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'gpsclientes',
+            'USER': 'gps',
+            'PASSWORD': 'UV202017',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
+    }
     ALLOWED_HOSTS = ['geo.ushuaiavision.com.ar', '192.168.50.164', 'localhost']
 
 LOGGING = {
