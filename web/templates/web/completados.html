@@ -1,5 +1,5 @@
 {% extends 'web/base.html' %}
-{% block activePendientes %}active{% endblock activePendientes %}
+{% block activeCompletados %}active{% endblock activeCompletados %}
 {% load staticfiles %}
 {% block extraHead %}
   <link rel="stylesheet" href="{% static 'web/css/index.css' %}">
@@ -13,21 +13,20 @@
 <div class="container-fluid">
       <div class="row">
           <div class="col col-sm-9 offset-4 mt-3 mb-3">
-              <h1>Clientes Pendientes</h1>
+              <h1>Clientes Completados</h1>
           </div>
       </div>
       <div class="row">
-        <form method="post" id="clientes" class="col-12" action="">
+        <form method="post" id="clientes_completados" class="col-12" action="">
         {% csrf_token %}
             <div class="table-responsive">
-              <table id="tb_clientes" class="table table-hover">
+              <table id="tb_clientes_completados" class="table table-hover">
                   <thead class="thead-dark ">
                       <tr>
                         <th data-field="clientenro">Número de cliente</th>
                         <th data-field="nombre">Nombre</th> 
                         <th data-field="direccion">Dirección</th>
                         <th data-field="posicion">Posición</th>
-                        <th data-field="edificio">Edificio</th>
                       </tr>
                   </thead>
                   <tbody>
@@ -37,7 +36,6 @@
                               <td >{{cliente.nombre}}</td>
                               <td >{{cliente.direccion}}</td>
                               <td ><button value="{{cliente.clientenro}}" id="{{cliente.clientenro}}" type="button" class="btn btn-primary">Obtener Posición</button></td>
-                              <td></td>
                           </tr>
                       {% endfor %}
                   </tbody>
@@ -61,9 +59,7 @@
 
     $(document).ready(function(){
 
-
- 
-      $('#tb_clientes').DataTable( 
+      $('#tb_clientes_completados').DataTable( 
         {
           "drawCallback": function(settings, json) {
             $(".btn").addClass("btn-primary");
@@ -72,30 +68,26 @@
             "paginate": {
               "previous": "Anterior",
               "next": "Siguiente",
-              "last": "Último",   
+              "last": "Último",
               "first": "1"
             },
             "search": "Buscar"
           },
           "processing": true,
-          "serverSide": true,   
+          "serverSide": true,
+          "orderable": false,
           "pagingType": "full",
-          "ajax": "/web/clientestable/"
+          "ajax": "/web/table_completados/"
         });
 
-      $('#tb_clientes').on('click', '.btn', function(){
+      $('#tb_clientes_completados').on('click', '.btn', function(){
         var clientenro = $(this).val();
-        var edif_flag = false;
-        if($(":checkbox[value="+ clientenro+ "]").is(':checked')){
-          edif_flag = true;
-        }
-        var position = getLocation(clientenro, edif_flag);
+        var position = getLocation(clientenro);
 
       });
    
-		function getLocation(clientenro, edif_flag) {
+		function getLocation(clientenro) {
         var clientenro = clientenro;
-        var edif_flag = edif_flag;
     		if (navigator.geolocation) {
     			var options = {
 					enableHighAccuracy : true,
@@ -115,7 +107,7 @@
 
       function getPosition(lat, long, precision){
         var position = {lat:lat, long:long};
-        $.post('/web/position/', {"latitud": position.lat, "longitud": position.long, "clientenro": clientenro, "precision": precision, "edif_flag": edif_flag})  
+        $.post('/web/position/', {"latitud": position.lat, "longitud": position.long, "clientenro": clientenro, "precision": precision})  
           .done(toast());
           setTimeout(function(){ location.reload(); }, 5000);
       }

@@ -15,7 +15,16 @@
 		<a class="navbar-brand" href="{% url 'index' %}">
 			<img class="mr-2" style="width:15%;height:50%;" src="{% static 'web/img/logo.png' %}" alt="logo">
 			<h4>Gps clientes</h4></a>
-	
+		<div class="navbar-nav-scroll">
+			<ul class="navbar-nav bd-navbar-nav flex-row">
+				<li class="nav-item {% block activePendientes %}{% endblock activePendientes %}">
+					<a class="nav-link " href="{% url 'index' %}">Pendientes</a>
+				</li>
+				<li class="nav-item {% block activeCompletados %}{% endblock activeCompletados %}">
+					<a class="nav-link " href="{% url 'completados' %}">Completados</a>
+				</li>				
+			</ul>
+		</div>
 	</header>
 	{% block content %}{% endblock content %}
 	<script src='{% static "web/js/jquery-3.2.1.min.js" %}'></script>
