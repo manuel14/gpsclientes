@@ -2,9 +2,14 @@
 	padding:0;
 }
 
+
+
 @media(max-width: 769px){
 	body{
 		overflow-x: auto;
+	}
+	#titulo{
+		font-size: 18px;
 	}
 }
 

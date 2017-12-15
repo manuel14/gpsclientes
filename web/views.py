@@ -3,12 +3,15 @@ from .models import Cliente
 from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
+import utm
 
 
 def index(request):
     clientes = Cliente.objects.all().order_by('clientenro')
     page = request.GET.get('page')
+    total = len(clientes)
     paginator = Paginator(clientes, 10)
+    cant_pend = Cliente.objects.filter(latitud__isnull=True).count()
     try:
         clientes_pags = paginator.page(page)
     except PageNotAnInteger:
@@ -16,19 +19,22 @@ def index(request):
     except EmptyPage:
         clientes_pags = paginator.page(paginator.num_pages)
 
-    return render(request, 'web/index.html', {"clientes": clientes_pags})
+    return render(request, 'web/index.html', {
+        "clientes": clientes_pags, "cant_pend": cant_pend,
+        "total":total})
 
 
 def position(request):
-    lat = request.POST.get("latitud", None)
-    lon = request.POST.get("longitud", None)
+    lat = request.POST.get("latitud", None).replace(",", ".")
+    lon = request.POST.get("longitud", None).replace(",", ".")
     precision = request.POST.get("precision", None)
     clientenro = request.POST.get("clientenro", None)
     edif_flag = request.POST.get("edif_flag", None)
     if lat and lon and clientenro and precision:
         cli = Cliente.objects.get(clientenro=clientenro)
-        cli.latitud = lat
-        cli.longitud = lon
+        lat_lon_utm = utm.from_latlon(lat, lon)
+        cli.latitud = lat_lon_utm[0]
+        cli.longitud = lat_lon_utm[1]
         cli.precision = precision
         cli.save()
         if edif_flag == "true":
@@ -62,7 +68,7 @@ def clientestable(request):
         clientenro = str(i["clientenro"])
         html_pos = "<button type=""button"" id=""{0}"" value=""{0}"" class=""{1}"">Obtener Posición</button>".format(
             clientenro, " btn")
-        html_edif = "<div id=""edif"" class=""form-check""><label class=""form-check-label""><input class=""form-check-input"" type=""checkbox"" value=""{0}"">Es edificio?</label></div>".format(
+        html_edif = "<div id=""edif"" class=""form-check""><label class=""form-check-label""><input class=""form-check-input"" type=""checkbox"" value=""{0}"">Es edificio</label></div>".format(
             clientenro)
         ret = [i[j] if j not in ['posicion', 'edificio']
                else html_pos if j == 'posicion' else html_edif for j in columns]
@@ -86,6 +92,8 @@ def error500(request):
 
 def completados(request):
     clientes = Cliente.objects.all().order_by('clientenro')
+    cant_comp = Cliente.objects.filter(latitud__isnull=False).count()
+    total = len(clientes)
     page = request.GET.get('page')
     paginator = Paginator(clientes, 10)
     try:
@@ -95,7 +103,9 @@ def completados(request):
     except EmptyPage:
         clientes_pags = paginator.page(paginator.num_pages)
 
-    return render(request, 'web/completados.html', {"clientes": clientes_pags})
+    return render(request, 'web/completados.html', {
+        "clientes": clientes_pags, "cant_comp": cant_comp, 
+        "total": total})
 
 
 def table_completados(request):
