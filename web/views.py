@@ -21,7 +21,7 @@ def index(request):
 
     return render(request, 'web/index.html', {
         "clientes": clientes_pags, "cant_pend": cant_pend,
-        "total":total})
+        "total": total})
 
 
 def position(request):
@@ -41,8 +41,8 @@ def position(request):
             clientes = Cliente.objects.filter(
                 direccion=cli.direccion)
             for c in clientes:
-                c.latitud = lat
-                c.longitud = lon
+                c.latitud = lat_lon_utm[0]
+                c.longitud = lat_lon_utm[1]
                 c.precision = precision
                 c.save()
         return HttpResponse(status=200)
@@ -90,6 +90,7 @@ def error404(request):
 def error500(request):
     return render(request, 'web/500.html')
 
+
 def completados(request):
     clientes = Cliente.objects.all().order_by('clientenro')
     cant_comp = Cliente.objects.filter(latitud__isnull=False).count()
@@ -104,7 +105,7 @@ def completados(request):
         clientes_pags = paginator.page(paginator.num_pages)
 
     return render(request, 'web/completados.html', {
-        "clientes": clientes_pags, "cant_comp": cant_comp, 
+        "clientes": clientes_pags, "cant_comp": cant_comp,
         "total": total})
 
 
