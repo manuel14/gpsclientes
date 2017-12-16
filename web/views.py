@@ -33,8 +33,8 @@ def position(request):
     if lat and lon and clientenro and precision:
         cli = Cliente.objects.get(clientenro=clientenro)
         lat_lon_utm = utm.from_latlon(float(lat), float(lon))
-        cli.latitud = lat_lon_utm[0]
-        cli.longitud = lat_lon_utm[1]
+        cli.latitud = round(lat_lon_utm[0], 2)
+        cli.longitud = round(lat_lon_utm[1], 2)
         cli.precision = precision
         cli.save()
         if edif_flag == "true":
