@@ -3,6 +3,7 @@ from .models import Cliente
 from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
+from datetime import datetime
 
 
 def index(request):
@@ -34,6 +35,7 @@ def position(request):
         cli.latitud = float(lat)
         cli.longitud = float(lon)
         cli.precision = precision
+        cli.fecha_posicion = datetime.now()
         cli.save()
         if edif_flag == "true":
             clientes = Cliente.objects.filter(
@@ -42,6 +44,7 @@ def position(request):
                 c.latitud = float(lat)
                 c.longitud = float(lon)
                 c.precision = precision
+                c.fecha_posicion = datetime.now()
                 c.save()
         return HttpResponse(status=200)
 
