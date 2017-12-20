@@ -7,4 +7,5 @@ urlpatterns = [
     url(r'^position/$', views.position, name="position"),
     url(r'^clientestable/$', views.clientestable, name="clientestable"),
     url(r'^table_completados/$', views.table_completados, name="table_completados"),
+    url(r'^tracking/$', views.tracking, name="tracking"),
 ]

@@ -104,19 +104,14 @@
         var lat = pos.coords.latitude;
         var long = pos.coords.longitude;
         var precision = pos.coords.accuracy;
-        if(precision < 25){
-          getPosition(lat, long, precision);
-        }
-        else{
-          alert("Precisión muy baja. Obtenga nuevamente posición");
-        }
+        getPosition(lat, long, precision);
       }
 
       function getPosition(lat, long, precision){
         var proj_from = proj4('EPSG:4326');
         var proj_to = proj4('EPSG:22172');
         var lat_lon_utm = proj4(proj_from, proj_to, [long, lat]);
-        $.post('/web/position/', {"latitud": lat_lon_utm[0], "longitud": lat_lon_utm[1], "clientenro": clientenro, "precision": precision, "edif_flag": edif_flag})  
+        $.post('/web/position/', {"latitud_4326": lat, "longitud_4326": long, "latitud_22172": lat_lon_utm[0], "longitud_22172": lat_lon_utm[1], "clientenro": clientenro, "precision": precision, "edif_flag": edif_flag})  
           .done(toast());
           setTimeout(function(){ location.reload(); }, 5000);
       }

@@ -4,6 +4,8 @@ from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from datetime import datetime
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 
 
 def index(request):
@@ -11,7 +13,7 @@ def index(request):
     page = request.GET.get('page')
     total = len(clientes)
     paginator = Paginator(clientes, 10)
-    cant_pend = Cliente.objects.filter(latitud__isnull=True).count()
+    cant_pend = Cliente.objects.filter(latitud_22172__isnull=True).count()
     try:
         clientes_pags = paginator.page(page)
     except PageNotAnInteger:
@@ -25,15 +27,19 @@ def index(request):
 
 
 def position(request):
-    lat = request.POST.get("latitud", None)
-    lon = request.POST.get("longitud", None)
+    lat_4326 = request.POST.get("latitud_4326", None)
+    lat_22172 = request.POST.get("latitud_22172", None)
+    lon_4326 = request.POST.get("longitud_4326", None)
+    lon_22172 = request.POST.get("longitud_22172", None)
     precision = request.POST.get("precision", None)
     clientenro = request.POST.get("clientenro", None)
     edif_flag = request.POST.get("edif_flag", None)
-    if lat and lon and clientenro and precision:
+    if lat_22172 and lon_22172 and clientenro and precision:
         cli = Cliente.objects.get(clientenro=clientenro)
-        cli.latitud = float(lat)
-        cli.longitud = float(lon)
+        cli.latitud_4326 = float(lat_4326)
+        cli.longitud_4326 = float(lon_4326)
+        cli.latitud_22172 = float(lat_22172)
+        cli.longitud_22172 = float(lon_22172)
         cli.precision = precision
         cli.fecha_posicion = datetime.now()
         cli.save()
@@ -41,8 +47,10 @@ def position(request):
             clientes = Cliente.objects.filter(
                 direccion=cli.direccion)
             for c in clientes:
-                c.latitud = float(lat)
-                c.longitud = float(lon)
+                c.latitud_4326 = float(lat_4326)
+                c.longitud_4326 = float(lon_4326)
+                c.latitud_22172 = float(lat_22172)
+                c.longitud_22172 = float(lon_22172)
                 c.precision = precision
                 c.fecha_posicion = datetime.now()
                 c.save()
@@ -55,13 +63,13 @@ def clientestable(request):
     length = int(request.GET['length'])
     global_search = request.GET['search[value]']
     if global_search:
-        all_objects = Cliente.objects.filter(Q(latitud__isnull=True) &
+        all_objects = Cliente.objects.filter(Q(latitud_22172__isnull=True) &
                                              Q(direccion__icontains=global_search)
                                              | Q(clientenro__icontains=global_search)
                                              | Q(nombre__icontains=global_search)
                                              )
     else:
-        all_objects = Cliente.objects.filter(latitud__isnull=True)
+        all_objects = Cliente.objects.filter(latitud_22172__isnull=True)
     columns = ['clientenro', 'nombre', 'direccion', 'posicion', 'edificio']
     objects = []
 
@@ -94,7 +102,7 @@ def error500(request):
 
 def completados(request):
     clientes = Cliente.objects.all().order_by('clientenro')
-    cant_comp = Cliente.objects.filter(latitud__isnull=False).count()
+    cant_comp = Cliente.objects.filter(latitud_22172__isnull=False).count()
     total = len(clientes)
     page = request.GET.get('page')
     paginator = Paginator(clientes, 10)
@@ -116,13 +124,13 @@ def table_completados(request):
     length = int(request.GET['length'])
     global_search = request.GET['search[value]']
     if global_search:
-        all_objects = Cliente.objects.filter(Q(latitud__isnull=False) &
+        all_objects = Cliente.objects.filter(Q(latitud_22172__isnull=False) &
                                              Q(direccion__icontains=global_search)
                                              | Q(clientenro__icontains=global_search)
                                              | Q(nombre__icontains=global_search)
                                              )
     else:
-        all_objects = Cliente.objects.filter(latitud__isnull=False)
+        all_objects = Cliente.objects.filter(latitud_22172__isnull=False)
     columns = ['clientenro', 'nombre', 'direccion', 'posicion']
     objects = []
 
@@ -141,3 +149,16 @@ def table_completados(request):
         "recordsFiltered": filtered_count,
         "data": objects,
     })
+
+
+def tracking(request):
+    completados = Cliente.objects.filter(latitud_4326__isnull=False).values_list(
+        'latitud_4326',
+        'longitud_4326',
+        'nombre',
+        'fecha_posicion',
+        'direccion',
+        'clientenro'
+    )
+    return render(request, 'web/map.html',
+                  {'clientes': json.dumps(list(completados), cls=DjangoJSONEncoder)})

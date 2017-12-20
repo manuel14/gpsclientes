@@ -4,8 +4,10 @@ from django.db import models
 class Cliente(models.Model):
     nombre = models.CharField(max_length=200)
     direccion = models.CharField(max_length=200)
-    latitud = models.FloatField(null=True, blank=True)
-    longitud = models.FloatField(null=True, blank=True)
+    latitud_4326 = models.FloatField(null=True, blank=True)
+    longitud_4326 = models.FloatField(null=True, blank=True)
+    latitud_22172 = models.FloatField(null=True, blank=True)
+    longitud_22172 = models.FloatField(null=True, blank=True)
     precision = models.FloatField(null=True, blank=True)
     fecha_posicion = models.DateTimeField(
         auto_now=False, auto_now_add=False, blank=True, null=True)
