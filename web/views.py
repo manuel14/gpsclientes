@@ -3,7 +3,6 @@ from .models import Cliente
 from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
-import utm
 
 
 def index(request):
@@ -25,24 +24,23 @@ def index(request):
 
 
 def position(request):
-    lat = request.POST.get("latitud", None).replace(",", ".")
-    lon = request.POST.get("longitud", None).replace(",", ".")
+    lat = request.POST.get("latitud", None)
+    lon = request.POST.get("longitud", None)
     precision = request.POST.get("precision", None)
     clientenro = request.POST.get("clientenro", None)
     edif_flag = request.POST.get("edif_flag", None)
     if lat and lon and clientenro and precision:
         cli = Cliente.objects.get(clientenro=clientenro)
-        lat_lon_utm = utm.from_latlon(float(lat), float(lon))
-        cli.latitud = round(lat_lon_utm[0], 2)
-        cli.longitud = round(lat_lon_utm[1], 2)
+        cli.latitud = float(lat)
+        cli.longitud = float(lon)
         cli.precision = precision
         cli.save()
         if edif_flag == "true":
             clientes = Cliente.objects.filter(
                 direccion=cli.direccion)
             for c in clientes:
-                c.latitud = lat_lon_utm[0]
-                c.longitud = lat_lon_utm[1]
+                c.latitud = float(lat)
+                c.longitud = float(lon)
                 c.precision = precision
                 c.save()
         return HttpResponse(status=200)

@@ -10,7 +10,7 @@
 {% endblock extraHead %}
   
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid col-12">
       <div class="row">
           <div class="col col-sm-9 offset-4 mt-3 mb-3">
               <h1 id="titulo">Clientes Pendientes ({{cant_pend}} de {{total}})</h1>
@@ -45,7 +45,6 @@
             </div>
       </form>
     </div>
-    
 </div>
 <div id="snackbar">Dirección guardada correctamente</div>
 {% endblock content %}
@@ -55,14 +54,9 @@
   <script type="text/javascript" charset="utf8" src="{% static 'web/DataTables/dataTables.bootstrap4.min.js' %}"></script>
   <script type="text/javascript" charset="utf8" src="{% static 'web/DataTables/dataTables.responsive.min.js' %}"></script>
   <script type="text/javascript" charset="utf8" src="{% static 'web/DataTables/responsive.bootstrap4.min.js' %}"></script>
-
-
+  <script type="text/javascript" charset="utf8" src="{% static 'web/js/proj4.js' %}"></script>
 	<script> 
-
     $(document).ready(function(){
-
-
- 
       $('#tb_clientes').DataTable( 
         {
           "drawCallback": function(settings, json) {
@@ -119,7 +113,10 @@
       }
 
       function getPosition(lat, long, precision){
-        $.post('/web/position/', {"latitud": lat, "longitud": long, "clientenro": clientenro, "precision": precision, "edif_flag": edif_flag})  
+        var proj_from = proj4('EPSG:4326');
+        var proj_to = proj4('EPSG:22172');
+        var lat_lon_utm = proj4(proj_from, proj_to, [long, lat]);
+        $.post('/web/position/', {"latitud": lat_lon_utm[0], "longitud": lat_lon_utm[1], "clientenro": clientenro, "precision": precision, "edif_flag": edif_flag})  
           .done(toast());
           setTimeout(function(){ location.reload(); }, 5000);
       }
