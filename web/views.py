@@ -45,7 +45,7 @@ def position(request):
         cli.save()
         if edif_flag == "true":
             clientes = Cliente.objects.filter(
-                direccion=cli.direccion)
+                direccion=cli.direccion, tira=cli.tira)
             for c in clientes:
                 c.latitud_4326 = float(lat_4326)
                 c.longitud_4326 = float(lon_4326)
@@ -67,6 +67,9 @@ def clientestable(request):
                                              Q(direccion__icontains=global_search)
                                              | Q(clientenro__icontains=global_search)
                                              | Q(nombre__icontains=global_search)
+                                             | Q(tira__icontains=global_search)
+                                             | Q(piso__icontains=global_search)
+                                             | Q(depto__icontains=global_search)
                                              )
     else:
         all_objects = Cliente.objects.filter(latitud_22172__isnull=True)
@@ -79,8 +82,17 @@ def clientestable(request):
             clientenro, " btn")
         html_edif = "<div id=""edif"" class=""form-check""><label class=""form-check-label""><input class=""form-check-input"" type=""checkbox"" value=""{0}"">Es edificio</label></div>".format(
             clientenro)
-        ret = [i[j] if j not in ['posicion', 'edificio']
-               else html_pos if j == 'posicion' else html_edif for j in columns]
+        dire = i["direccion"] + " "
+        if i["tira"] and i["piso"] and i["depto"]:
+            dire += "tira:" + i["tira"] + " " + "piso:" + \
+                i["piso"] + " " + "depto:" + i["depto"]
+
+        elif i["tira"] and i["depto"]:
+            dire += "tira:" + i["tira"] + " " + "depto:" + i["depto"]
+        elif i["tira"]:
+            dire += "tira:" + i["tira"]
+        ret = [i[j] if j not in ['direccion', 'posicion', 'edificio']
+               else dire if j == 'direccion' else html_pos if j == 'posicion' else html_edif for j in columns]
         objects.append(ret)
     filtered_count = all_objects.count()
     total_count = Cliente.objects.all().count()
@@ -128,6 +140,9 @@ def table_completados(request):
                                              Q(direccion__icontains=global_search)
                                              | Q(clientenro__icontains=global_search)
                                              | Q(nombre__icontains=global_search)
+                                             | Q(tira__icontains=global_search)
+                                             | Q(piso__icontains=global_search)
+                                             | Q(depto__icontains=global_search)
                                              )
     else:
         all_objects = Cliente.objects.filter(latitud_22172__isnull=False)
@@ -138,8 +153,18 @@ def table_completados(request):
         clientenro = str(i["clientenro"])
         html_pos = "<button type=""button"" id=""{0}"" value=""{0}"" class=""{1}"">Obtener Posición</button>".format(
             clientenro, "btn")
-        ret = [i[j] if j != "posicion"
-               else html_pos for j in columns]
+        dire = i["direccion"] + " "
+        if i["tira"] and i["piso"] and i["depto"]:
+            dire += "tira:" + i["tira"] + " " + "piso:" + \
+                i["piso"] + " " + "depto:" + i["depto"]
+
+        elif i["tira"] and i["depto"]:
+            dire += "tira:" + i["tira"] + " " + "depto:" + i["depto"]
+        elif i["tira"]:
+            dire += "tira:" + i["tira"]
+
+        ret = [i[j] if j not in ["posicion", 'direccion']
+               else html_pos if j == 'posicion' else dire for j in columns]
         objects.append(ret)
     filtered_count = all_objects.count()
     total_count = Cliente.objects.all().count()
@@ -152,7 +177,11 @@ def table_completados(request):
 
 
 def tracking(request):
-    completados = Cliente.objects.filter(latitud_4326__isnull=False).values_list(
+    fecha = request.GET.get("fecha", None)
+    date = datetime.strptime(fecha, "%Y-%m-%d")
+    completados = Cliente.objects.filter(
+        latitud_4326__isnull=False, fecha_posicion__date__gte=date
+    ).values_list(
         'latitud_4326',
         'longitud_4326',
         'nombre',
@@ -162,3 +191,7 @@ def tracking(request):
     )
     return render(request, 'web/map.html',
                   {'clientes': json.dumps(list(completados), cls=DjangoJSONEncoder)})
+
+
+def form_tracking(request):
+    return render(request, 'web/tracking.html')

@@ -14,13 +14,25 @@ def load_clientes():
             ws['C%s' % (r)].value = ""
         if ws['D%s' % (r)].value is None:
             ws['D%s' % (r)].value = ""
+        if ws['E%s' % (r)].value is None and ws['G%s' % (r)].value is None:
+            continue
         if ws['E%s' % (r)].value is None:
             ws['E%s' % (r)].value = ""
+        if ws['G%s' % (r)].value is None:
+            ws['G%s' % (r)].value = ""
+        if ws['H%s' % (r)].value is None:
+            ws['H%s' % (r)].value = ""
+        if ws['I%s' % (r)].value is None:
+            ws['I%s' % (r)].value = ""
         clientes.append(
             Cliente(
                 clientenro=ws['A%s' % (r)].value,
                 nombre=ws['B%s' % (r)].value + " " + ws['C%s' % (r)].value,
-                direccion=ws['D%s' % (r)].value + " " + ws['E%s' % (r)].value
+                direccion=ws['D%s' % (r)].value + " " +
+                str(ws['E%s' % (r)].value),
+                tira=ws['G%s' % (r)].value,
+                piso=ws['H%s' % (r)].value,
+                depto=ws['I%s' % (r)].value
             )
         )
     Cliente.objects.bulk_create(clientes)

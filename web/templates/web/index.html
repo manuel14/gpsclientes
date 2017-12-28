@@ -103,7 +103,7 @@
         var lat = pos.coords.latitude;
         var long = pos.coords.longitude;
         var precision = pos.coords.accuracy;
-        if(precision < 25){
+         if(precision < 25){
           getPosition(lat, long, precision);
         }
         else{
