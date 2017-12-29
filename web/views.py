@@ -64,13 +64,13 @@ def clientestable(request):
     global_search = request.GET['search[value]']
     if global_search:
         all_objects = Cliente.objects.filter(Q(latitud_22172__isnull=True) &
-                                             Q(direccion__icontains=global_search)
-                                             | Q(clientenro__icontains=global_search)
-                                             | Q(nombre__icontains=global_search)
-                                             | Q(tira__icontains=global_search)
-                                             | Q(piso__icontains=global_search)
-                                             | Q(depto__icontains=global_search)
-                                             )
+                                             (Q(direccion__icontains=global_search)
+                                              | Q(clientenro__icontains=global_search)
+                                              | Q(nombre__icontains=global_search)
+                                              | Q(tira__icontains=global_search)
+                                              | Q(piso__icontains=global_search)
+                                              | Q(depto__icontains=global_search)
+                                              ))
     else:
         all_objects = Cliente.objects.filter(latitud_22172__isnull=True)
     columns = ['clientenro', 'nombre', 'direccion', 'posicion', 'edificio']
@@ -136,14 +136,14 @@ def table_completados(request):
     length = int(request.GET['length'])
     global_search = request.GET['search[value]']
     if global_search:
-        all_objects = Cliente.objects.filter(Q(latitud_22172__isnull=False) &
+        all_objects = Cliente.objects.filter(Q(latitud_22172__isnull=False) & (
                                              Q(direccion__icontains=global_search)
                                              | Q(clientenro__icontains=global_search)
                                              | Q(nombre__icontains=global_search)
                                              | Q(tira__icontains=global_search)
                                              | Q(piso__icontains=global_search)
                                              | Q(depto__icontains=global_search)
-                                             )
+                                             ))
     else:
         all_objects = Cliente.objects.filter(latitud_22172__isnull=False)
     columns = ['clientenro', 'nombre', 'direccion', 'posicion']
