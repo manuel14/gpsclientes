@@ -180,7 +180,7 @@ def tracking(request):
     fecha = request.GET.get("fecha", None)
     date = datetime.strptime(fecha, "%Y-%m-%d")
     completados = Cliente.objects.filter(
-        latitud_4326__isnull=False, fecha_posicion__date__gte=date
+        latitud_4326__isnull=False, fecha_posicion__date=date
     ).values_list(
         'latitud_4326',
         'longitud_4326',
