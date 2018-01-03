@@ -9,4 +9,5 @@ urlpatterns = [
     url(r'^table_completados/$', views.table_completados, name="table_completados"),
     url(r'^tracking/$', views.tracking, name="tracking"),
     url(r'^form_tracking/$', views.form_tracking, name="form_tracking"),
+    url(r'^geocoder/$', views.geocoder, name="geocoder"),
 ]

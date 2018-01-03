@@ -23,7 +23,7 @@ var dibujar = function() {
 		lat_lng.push(myLatLng);
 		var content = '<div id="content">'+
 			'<h6>Nro cliente: '+val[5]+'</h6>'+
-			'<h6>Nombre: '+val[3]+'</h6>'+
+			'<h6>Nombre: '+val[2]+'</h6>'+
 			'<h6>Direccion: '+val[4]+'</h6>'+
 			'</div>';
 		var infowindow = new google.maps.InfoWindow({

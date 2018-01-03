@@ -44,8 +44,8 @@ def position(request):
         cli.fecha_posicion = datetime.now()
         cli.save()
         if edif_flag == "true":
-            clientes = Cliente.objects.filter(
-                direccion=cli.direccion, tira=cli.tira)
+            clientes = Cliente.objects.filter(Q(
+                direccion=cli.direccion) & Q(tira=cli.tira) | Q(direccion=cli.direccion))
             for c in clientes:
                 c.latitud_4326 = float(lat_4326)
                 c.longitud_4326 = float(lon_4326)
@@ -195,3 +195,7 @@ def tracking(request):
 
 def form_tracking(request):
     return render(request, 'web/tracking.html')
+
+
+def geocoder(request):
+    return render(request, 'web/geocoder.html')
