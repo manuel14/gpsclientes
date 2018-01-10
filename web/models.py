@@ -33,6 +33,7 @@ class Cliente(models.Model):
     fecha_posicion = models.DateTimeField(
         auto_now=False, auto_now_add=False, blank=True, null=True)
     clientenro = models.IntegerField(unique=True)
+    geocode = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.clientenro)

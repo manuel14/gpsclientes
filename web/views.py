@@ -6,6 +6,10 @@ from django.db.models import Q
 from datetime import datetime
 from django.core.serializers.json import DjangoJSONEncoder
 import json
+import googlemaps
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def index(request):
@@ -36,10 +40,10 @@ def position(request):
     edif_flag = request.POST.get("edif_flag", None)
     if lat_22172 and lon_22172 and clientenro and precision:
         cli = Cliente.objects.get(clientenro=clientenro)
-        cli.latitud_4326 = float(lat_4326)
-        cli.longitud_4326 = float(lon_4326)
-        cli.latitud_22172 = float(lat_22172)
-        cli.longitud_22172 = float(lon_22172)
+        cli.latitud_4326 = round(float(lat_4326), 2)
+        cli.longitud_4326 = round(float(lon_4326), 2)
+        cli.latitud_22172 = round(float(lat_22172), 2)
+        cli.longitud_22172 = round(float(lon_22172), 2)
         cli.precision = precision
         cli.fecha_posicion = datetime.now()
         cli.save()
@@ -47,10 +51,10 @@ def position(request):
             clientes = Cliente.objects.filter(Q(
                 direccion=cli.direccion) & Q(tira=cli.tira) | Q(direccion=cli.direccion))
             for c in clientes:
-                c.latitud_4326 = float(lat_4326)
-                c.longitud_4326 = float(lon_4326)
-                c.latitud_22172 = float(lat_22172)
-                c.longitud_22172 = float(lon_22172)
+                c.latitud_4326 = round(float(lat_4326), 2)
+                c.longitud_4326 = round(float(lon_4326), 2)
+                c.latitud_22172 = round(float(lat_22172), 2)
+                c.longitud_22172 = round(float(lon_22172), 2)
                 c.precision = precision
                 c.fecha_posicion = datetime.now()
                 c.save()
@@ -198,4 +202,44 @@ def form_tracking(request):
 
 
 def geocoder(request):
-    return render(request, 'web/geocoder.html')
+    clientes = Cliente.objects.filter(geocode=True)
+    return render(request, 'web/geocoder.html', {"clientes": clientes})
+
+
+def clientes_geocode(request):
+    clientes = Cliente.objects.filter(geocode=True)[:1000]
+    gclient = googlemaps.Client(key='AIzaSyDqZBSnWiaoZsTxIbQjaNcM2xXuXk2IPv4',
+                                )
+    cont = 0
+    for c in clientes:
+        dire = c.direccion + "ushuaia, tierra del fuego"
+        coords = gclient.geocode(address=dire)
+        c.latitud_4326 = coords[0]["geometry"]["location"]["lat"]
+        c.longitud_4326 = coords[0]["geometry"]["location"]["lng"]
+        c.save()
+        cont +=1
+    logger.info(cont)
+    return HttpResponse(status=200, reason=cont)
+
+
+def convert_22172(request):
+    clientes = Cliente.objects.filter(
+        latitud_22172__isnull=True,
+        latitud_4326__isnull=False)[:500].values_list("clientenro", "latitud_4326", "longitud_4326")
+    clientes = json.dumps(list(clientes))
+    return render(request, 'web/convert.html', {"clientes": clientes})
+
+
+def save_22172(request):
+    print(request.GET)
+    clientes = json.loads(request.GET.get("clientes", None))
+    print(clientes)
+    if clientes:
+        for c in clientes:
+            cli = Cliente.objects.get(clientenro=c["clientenro"])
+            cli.latitud_22172 = c["latitud_22172"]
+            cli.longitud_22172 = c["longitud_22172"]
+            cli.save()
+    else:
+        return HttpResponse(status=400)
+    return HttpResponse(status=200)

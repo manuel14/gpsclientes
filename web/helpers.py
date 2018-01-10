@@ -24,6 +24,10 @@ def load_clientes():
             ws['H%s' % (r)].value = ""
         if ws['I%s' % (r)].value is None:
             ws['I%s' % (r)].value = ""
+        if ws['J%s' % (r)].value == "NO":
+            geocode = False
+        else:
+            geocode = True
         clientes.append(
             Cliente(
                 clientenro=ws['A%s' % (r)].value,
@@ -32,7 +36,8 @@ def load_clientes():
                 str(ws['E%s' % (r)].value),
                 tira=ws['G%s' % (r)].value,
                 piso=ws['H%s' % (r)].value,
-                depto=ws['I%s' % (r)].value
+                depto=ws['I%s' % (r)].value,
+                geocode=geocode
             )
         )
     Cliente.objects.bulk_create(clientes)
