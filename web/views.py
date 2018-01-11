@@ -8,6 +8,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 import json
 import googlemaps
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -218,6 +219,7 @@ def clientes_geocode(request):
         c.longitud_4326 = coords[0]["geometry"]["location"]["lng"]
         c.save()
         cont +=1
+        time.sleep(3)
     logger.info(cont)
     return HttpResponse(status=200, reason=cont)
 
