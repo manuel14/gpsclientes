@@ -212,7 +212,7 @@ def clientes_geocode(request):
     gclient = googlemaps.Client(key='AIzaSyDqZBSnWiaoZsTxIbQjaNcM2xXuXk2IPv4',
                                 )
     for c in clientes:
-        dire = c.direccion + "ushuaia, tierra del fuego"
+        dire = c.direccion + ",ushuaia, tierra del fuego"
         coords = gclient.geocode(address=dire)
         if coords == []:
             logger.info("Cliente no localizado: " + str(c.clientenro))
@@ -221,7 +221,7 @@ def clientes_geocode(request):
         c.longitud_4326 = coords[0]["geometry"]["location"]["lng"]
         c.save()
         time.sleep(2)
-    return HttpResponse(status=200, reason=cont)
+    return HttpResponse(status=200)
 
 
 def convert_22172(request):
