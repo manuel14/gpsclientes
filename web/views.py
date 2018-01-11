@@ -208,19 +208,19 @@ def geocoder(request):
 
 
 def clientes_geocode(request):
-    clientes = Cliente.objects.filter(geocode=True, latitud_4326__isnull=False)[:40]
+    clientes = Cliente.objects.filter(geocode=True, latitud_4326__isnull=False)[:1000]
     gclient = googlemaps.Client(key='AIzaSyDqZBSnWiaoZsTxIbQjaNcM2xXuXk2IPv4',
                                 )
-    cont = 0
     for c in clientes:
         dire = c.direccion + "ushuaia, tierra del fuego"
         coords = gclient.geocode(address=dire)
+        if coords == []:
+            logger.info("Cliente no localizado: " + str(c.clientenro))
+            continue
         c.latitud_4326 = coords[0]["geometry"]["location"]["lat"]
         c.longitud_4326 = coords[0]["geometry"]["location"]["lng"]
         c.save()
-        cont +=1
-        time.sleep(3)
-    logger.info(cont)
+        time.sleep(2)
     return HttpResponse(status=200, reason=cont)
 
 
