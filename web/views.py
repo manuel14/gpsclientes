@@ -207,7 +207,7 @@ def geocoder(request):
 
 
 def clientes_geocode(request):
-    clientes = Cliente.objects.filter(geocode=True)[:1000]
+    clientes = Cliente.objects.filter(geocode=True, latitud_4326__isnull=False)[:40]
     gclient = googlemaps.Client(key='AIzaSyDqZBSnWiaoZsTxIbQjaNcM2xXuXk2IPv4',
                                 )
     cont = 0
