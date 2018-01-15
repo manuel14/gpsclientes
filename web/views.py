@@ -245,3 +245,13 @@ def save_22172(request):
     else:
         return HttpResponse(status=400)
     return HttpResponse(status=200)
+
+def form_ubicados(request):
+    return render (request, 'web/form_ubicados.html')
+
+def ubicados(request):
+    clientes = Cliente.objects.filter(latitud_4326__isnull=False).values_list(
+        "latitud_4326", "longitud_4326", "nombre")
+    return render(request, 'web/map.html',
+                  {'clientes': json.dumps(list(clientes), cls=DjangoJSONEncoder)})
+

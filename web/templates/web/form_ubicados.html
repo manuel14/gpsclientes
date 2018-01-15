@@ -1,0 +1,25 @@
+{% extends "web/base.html" %}
+{% load staticfiles %}
+{% block activeTracking %}active{% endblock activeTracking %}
+{% block content %}
+	<h1 class="offset-4 mt-3">Mapa de clientes relevados</h1>
+	<section class="col-md-6 mx-auto">
+		<form>
+			<div class="form-group row">
+				<div class="col-6">
+					<button type="submit" id='ver' class="btn btn-primary">Ver</button>
+				</div>
+			</div>
+		</form>
+	</section>
+{% endblock content %}
+{% block extraScripts %}
+	<script>
+		$(document).ready(function() {
+			$('#ver').click(function(e) {
+				e.preventDefault();
+				window.open('/web/ubicados/', "width=1000,height=600");
+			});
+		});
+	</script>
+{% endblock extraScripts %}
