@@ -6,11 +6,10 @@
     $(document).ready(function(){
 
         var clientes = JSON.parse('{{clientes|escapejs}}');
-        console.log(clientes);
         var lista = [];
         $.each(clientes, function(index, val){
-            var long = val[1];
-            var lat = val[2];
+            var long = val[2];
+            var lat = val[1];
             var proj_from = proj4('EPSG:4326');
             var proj_to = proj4('EPSG:22172');
             var lat_lon_utm = proj4(proj_from, proj_to, [long, lat]);
