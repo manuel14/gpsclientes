@@ -233,9 +233,7 @@ def convert_22172(request):
 
 
 def save_22172(request):
-    print(request.GET)
-    clientes = json.loads(request.GET.get("clientes", None))
-    print(clientes)
+    clientes = json.loads(request.POST.get("clientes", None))
     if clientes:
         for c in clientes:
             cli = Cliente.objects.get(clientenro=c["clientenro"])

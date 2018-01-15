@@ -4,7 +4,34 @@
 <script type="text/javascript" charset="utf8" src="{% static 'web/js/proj4.js' %}"></script>
 <script>
     $(document).ready(function(){
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+        }
+        return cookieValue;
+        }
+        var csrftoken = getCookie('csrftoken');
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
 
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
         var clientes = JSON.parse('{{clientes|escapejs}}');
         var lista = [];
         $.each(clientes, function(index, val){
@@ -18,9 +45,8 @@
             cliente["latitud_22172"] = lat_lon_utm[0];
             cliente["longitud_22172"] = lat_lon_utm[1];
             lista.push(cliente);
-            console.log(lista);
         })
-        $.get("/web/save_22172/", {"clientes": JSON.stringify(lista)})
+        $.post("/web/save_22172/", {"clientes": JSON.stringify(lista)})
             .done(alert("clientes guardados"));
 
 
