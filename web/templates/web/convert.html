@@ -1,0 +1,31 @@
+{% extends 'web/base.html' %}
+{% load staticfiles %}
+{% block extraScripts %}
+<script type="text/javascript" charset="utf8" src="{% static 'web/js/proj4.js' %}"></script>
+<script>
+    $(document).ready(function(){
+
+        var clientes = JSON.parse('{{clientes|escapejs}}');
+        console.log(clientes);
+        var lista = [];
+        $.each(clientes, function(index, val){
+            var long = val[1];
+            var lat = val[2];
+            var proj_from = proj4('EPSG:4326');
+            var proj_to = proj4('EPSG:22172');
+            var lat_lon_utm = proj4(proj_from, proj_to, [long, lat]);
+            var cliente = {};
+            cliente["clientenro"] = val[0];
+            cliente["latitud_22172"] = lat_lon_utm[0];
+            cliente["longitud_22172"] = lat_lon_utm[1];
+            lista.push(cliente);
+            console.log(lista);
+        })
+        $.get("/web/save_22172/", {"clientes": JSON.stringify(lista)})
+            .done(alert("clientes guardados"));
+
+
+    });
+</script>
+    
+{% endblock extraScripts %}
