@@ -15,4 +15,6 @@ urlpatterns = [
     url(r'^save_22172/$', views.save_22172, name="save_22172"),
     url(r'^ubicados/$', views.ubicados, name="ubicados"),
     url(r'^form_ubicados/$', views.form_ubicados, name="form_ubicados"),
+    url(r'^clientes_direcciones/$', views.get_clientes_direcciones, name="clientes_direcciones"),
+    url(r'^faltantes/$', views.get_geocode_faltantes, name="faltantes"),
 ]
