@@ -274,34 +274,35 @@ def get_clientes_direcciones(request):
                         piso=r["piso"], geocode=False
                         )
             c.save()
-    logger.info(result[-1])
     return HttpResponse(status=200)
 
 
 def get_geocode_faltantes(request):
     clientes = Cliente.objects.filter(
-        latitud_4326__isnull=True, direccion__isnull=False)[:500]
+        latitud_4326__isnull=True, direccion__isnull=False)[:300]
     gclient = googlemaps.Client(key='AIzaSyDqZBSnWiaoZsTxIbQjaNcM2xXuXk2IPv4',
                                 )
     cont_ubicados = 0
     cont_no_ubicados = 0
     no_ubicables = []
     for c in clientes:
-        dire = ",ushuaia, tierra del fuego" + c.direccion
+        if c.direccion.startswith("B.") or c.direccion.startswith("A.R.A"):
+            continue
+        dire = c.direccion + ",ushuaia, tierra del fuego"
         coords = gclient.geocode(address=dire)
         if coords == []:
-            cont_ubicados += 1
-            c.geocode = False
+            cont_no_ubicados += 1
             c.save()
             no_ubicables.append({"clientenro": c.clientenro})
         else:
-            c.latitud_4326 = coords[0]["geometry"]["location"]["lat"]
-            c.longitud_4326 = coords[0]["geometry"]["location"]["lng"]
-            c.geocode = True
-            c.save()
-            cont_no_ubicados += 1
-        time.sleep(1)
-
+            if c.latitud_4326 is None:
+                c.latitud_4326 = coords[0]["geometry"]["location"]["lat"]
+                c.longitud_4326 = coords[0]["geometry"]["location"]["lng"]
+                c.save()
+                cont_ubicados += 1
+                time.sleep(1)
+            else:
+                continue
     logger.info("no ubicados: " + str(cont_no_ubicados))
     logger.info("Ubicados: " + str(cont_ubicados))
     with open('clientes_no_ubicables.txt', 'w')as outfile:
