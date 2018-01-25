@@ -239,7 +239,7 @@ def clientes_geocode(request):
         calle__limite_inferior__isnull=False,
         latitud_4326__isnull=True,
         longitud_4326__isnull=True
-    )[:10]
+    )
     gclient = googlemaps.Client(key='AIzaSyDqZBSnWiaoZsTxIbQjaNcM2xXuXk2IPv4',
                                 )
     no_ubicables = []
