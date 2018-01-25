@@ -1,14 +1,13 @@
 from django.shortcuts import render
-from .models import Cliente
+from .models import Cliente, Calle
 from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
-from django.core.serializers import serialize
 from datetime import datetime
 from django.core.serializers.json import DjangoJSONEncoder
 from sigabd import sigabdConnector
 from .sigacredentials import USER, PASS
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 import json
 import googlemaps
 import logging
@@ -256,55 +255,6 @@ def form_ubicados(request):
 
 def ubicados(request):
     clientes = Cliente.objects.filter(latitud_4326__isnull=False).values_list(
-        "latitud_4326", "longitud_4326", "nombre")
+        "latitud_4326", "longitud_4326", "clientenro", "nombre", "direccion",)
     return render(request, 'web/map.html',
                   {'clientes': json.dumps(list(clientes), cls=DjangoJSONEncoder)})
-
-
-def get_clientes_direcciones(request):
-    con = sigabdConnector(USER, PASS)
-    result = con.get_clientes_direccion()
-    for r in result:
-        try:
-            Cliente.objects.get(clientenro=r["clientenro"])
-            continue
-        except ObjectDoesNotExist:
-            c = Cliente(clientenro=r["clientenro"],
-                        nombre=r["nombre"], direccion=r["calle"] + r["puerta"],
-                        piso=r["piso"], geocode=False
-                        )
-            c.save()
-    return HttpResponse(status=200)
-
-
-def get_geocode_faltantes(request):
-    clientes = Cliente.objects.filter(
-        latitud_4326__isnull=True, direccion__isnull=False)[:300]
-    gclient = googlemaps.Client(key='AIzaSyDqZBSnWiaoZsTxIbQjaNcM2xXuXk2IPv4',
-                                )
-    cont_ubicados = 0
-    cont_no_ubicados = 0
-    no_ubicables = []
-    for c in clientes:
-        if c.direccion.startswith("B.") or c.direccion.startswith("A.R.A"):
-            continue
-        dire = c.direccion + ",ushuaia, tierra del fuego"
-        coords = gclient.geocode(address=dire)
-        if coords == []:
-            cont_no_ubicados += 1
-            c.save()
-            no_ubicables.append({"clientenro": c.clientenro})
-        else:
-            if c.latitud_4326 is None:
-                c.latitud_4326 = coords[0]["geometry"]["location"]["lat"]
-                c.longitud_4326 = coords[0]["geometry"]["location"]["lng"]
-                c.save()
-                cont_ubicados += 1
-                time.sleep(1)
-            else:
-                continue
-    logger.info("no ubicados: " + str(cont_no_ubicados))
-    logger.info("Ubicados: " + str(cont_ubicados))
-    with open('clientes_no_ubicables.txt', 'w')as outfile:
-        json.dump(no_ubicables, outfile, ensure_ascii=False)
-    return HttpResponse(status=200)

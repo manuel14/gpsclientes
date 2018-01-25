@@ -17,6 +17,18 @@ class Barrio(models.Model):
         return self.nombre
 
 
+class Calle(models.Model):
+    nombre = models.CharField(max_length=200)
+    geocode = models.BooleanField(default=False)
+    osm_geocode = models.NullBooleanField()
+    calleidsiga = models.IntegerField()
+    limite_inferior = models.IntegerField(blank=True, null=True)
+    limite_superior = models.IntegerField(blank=True, null=True)
+
+    def __str__(self):
+        return self.nombre
+
+
 class Cliente(models.Model):
     nombre = models.CharField(max_length=200)
     direccion = models.CharField(max_length=200)
@@ -34,6 +46,9 @@ class Cliente(models.Model):
         auto_now=False, auto_now_add=False, blank=True, null=True)
     clientenro = models.IntegerField(unique=True)
     geocode = models.BooleanField(default=False)
+    calle = models.ForeignKey(Calle, blank=True,
+                              null=True, on_delete=models.CASCADE, related_name="clientes")
+    puerta = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
         return str(self.clientenro)

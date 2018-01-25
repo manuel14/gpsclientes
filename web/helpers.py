@@ -1,5 +1,5 @@
 from openpyxl import load_workbook
-from .models import Cliente
+from .models import Cliente, Calle
 
 
 def load_clientes():
@@ -41,3 +41,41 @@ def load_clientes():
             )
         )
     Cliente.objects.bulk_create(clientes)
+
+
+def load_calles():
+    wb = load_workbook('calles_completo.xlsx')
+    ws = wb.get_sheet_by_name('calles_completo')
+    calles = []
+    for r in range(2, ws.max_row + 1):
+        if ws['F%s' % (r)].value is None or ws['F%s' % (r)].value == "":
+            continue
+        if ws['B%s' % (r)].value is None or ws['A%s' % (r)].value == "":
+            lim_inf = None
+        else:
+            lim_inf = ws['B%s' % (r)].value
+        if ws['C%s' % (r)].value is None or ws['C%s' % (r)].value == "":
+            lim_sup = None
+        else:
+            lim_sup = ws['B%s' % (r)].value
+        if ws['D%s' % (r)].value == 'SI':
+            geocode = True
+        else:
+            geocode = False
+        if ws['E%s' % (r)].value == 'SI':
+            osm_geocode = True
+        elif ws['E%s' % (r)].value == 'NO':
+            osm_geocode = False
+        else:
+            osm_geocode = None
+        c = Calle(
+            nombre=ws['A%s' % (r)].value,
+            limite_inferior=lim_inf,
+            limite_superior=lim_sup,
+            calleidsiga=ws['F%s' % (r)].value,
+            geocode=geocode,
+            osm_geocode=osm_geocode
+        )
+        calles.append(c)
+    Calle.objects.bulk_create(calles)
+    return True
