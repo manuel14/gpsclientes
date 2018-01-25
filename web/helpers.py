@@ -57,7 +57,7 @@ def load_calles():
         if ws['C%s' % (r)].value is None or ws['C%s' % (r)].value == "":
             lim_sup = None
         else:
-            lim_sup = ws['B%s' % (r)].value
+            lim_sup = ws['C%s' % (r)].value
         if ws['D%s' % (r)].value == 'SI':
             geocode = True
         else:
