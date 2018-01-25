@@ -210,22 +210,32 @@ def geocoder(request):
     return render(request, 'web/geocoder.html', {"clientes": clientes})
 
 
-def clientes_geocode(request):
-    clientes = Cliente.objects.filter(
-        geocode=True, latitud_4326__isnull=False)[:1000]
-    gclient = googlemaps.Client(key='AIzaSyDqZBSnWiaoZsTxIbQjaNcM2xXuXk2IPv4',
-                                )
+def calle_for_cliente(request):
+    clientes = Cliente.objects.filter(calle__isnull=True).values_list(
+        "clientenro", flat=True)
+    con = sigabdConnector(USER, PASS)
     for c in clientes:
-        dire = c.direccion + ",ushuaia, tierra del fuego"
-        coords = gclient.geocode(address=dire)
-        if coords == []:
-            logger.info("Cliente no localizado: " + str(c.clientenro))
+        try:
+            cli = Cliente.objects.get(clientenro=c)
+            result = con.get_calle_for_cliente(c)
+            if result:
+                calleid = result[1]
+                puerta = result[0].strip()
+                calle = Calle.objects.get(calleidsiga=calleid)
+                cli.calle = calle
+                cli.puerta = puerta
+                cli.save()
+            else:
+                continue
+        except (ObjectDoesNotExist, MultipleObjectsReturned):
             continue
-        c.latitud_4326 = coords[0]["geometry"]["location"]["lat"]
-        c.longitud_4326 = coords[0]["geometry"]["location"]["lng"]
-        c.save()
-        time.sleep(2)
     return HttpResponse(status=200)
+
+
+def clientes_geocode(request):
+    con = sigabdConnector(USER, PASS)
+    cli_query = Cliente.objects.filter()
+    clientes = con.get_clientes_geocode(clientes)
 
 
 def convert_22172(request):
