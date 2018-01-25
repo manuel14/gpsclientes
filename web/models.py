@@ -47,8 +47,8 @@ class Cliente(models.Model):
     clientenro = models.IntegerField(unique=True)
     geocode = models.BooleanField(default=False)
     calle = models.ForeignKey(Calle, blank=True,
-                              null=True, on_delete=models.CASCADE, related_name="clientes")
-    puerta = models.CharField(max_length=200, blank=True, null=True)
+                              null=True, on_delete=models.SET_NULL, related_name="clientes")
+    puerta = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return str(self.clientenro)

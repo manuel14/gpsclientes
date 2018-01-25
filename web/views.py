@@ -2,7 +2,7 @@ from django.shortcuts import render
 from .models import Cliente, Calle
 from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q
+from django.db.models import Q, F
 from datetime import datetime
 from django.core.serializers.json import DjangoJSONEncoder
 from sigabd import sigabdConnector
@@ -219,8 +219,11 @@ def calle_for_cliente(request):
             cli = Cliente.objects.get(clientenro=c)
             result = con.get_calle_for_cliente(c)
             if result:
+                try:
+                    puerta = int(result[0].strip())
+                except ValueError:
+                    continue
                 calleid = result[1]
-                puerta = result[0].strip()
                 calle = Calle.objects.get(calleidsiga=calleid)
                 cli.calle = calle
                 cli.puerta = puerta
@@ -234,18 +237,19 @@ def calle_for_cliente(request):
 
 def clientes_geocode(request):
     clientes = Cliente.objects.filter(
-        calle__isnull=False, puerta__isnull=False,
-        calle__limite_superior__isnull=False,
-        calle__limite_inferior__isnull=False,
+        puerta__isnull=False,
         latitud_4326__isnull=True,
-        longitud_4326__isnull=True
-    )
+        longitud_4326__isnull=True,
+        calle__limite_inferior__lte=F('puerta'),
+        calle__limite_superior__gte=F('puerta'),
+
+    )[:300]
     gclient = googlemaps.Client(key='AIzaSyDqZBSnWiaoZsTxIbQjaNcM2xXuXk2IPv4',
                                 )
     no_ubicables = []
     ubicados = 0
     for c in clientes:
-        dire = c.calle.nombre + c.puerta + ",ushuaia,tierra del fuego"
+        dire = c.calle.nombre + str(c.puerta) + ",ushuaia,tierra del fuego"
         coords = gclient.geocode(address=dire)
         if coords == []:
             no_ubicables.append({"clientenro": c.clientenro})
