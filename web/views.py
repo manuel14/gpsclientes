@@ -233,9 +233,34 @@ def calle_for_cliente(request):
 
 
 def clientes_geocode(request):
-    con = sigabdConnector(USER, PASS)
-    cli_query = Cliente.objects.filter()
-    clientes = con.get_clientes_geocode(clientes)
+    clientes = Cliente.objects.filter(
+        calle__isnull=False, puerta__isnull=False,
+        calle__limite_superior__isnull=False,
+        calle__limite_inferior__isnull=False,
+        latitud_4326__isnull=True,
+        longitud_4326__isnull=True
+    )[:10]
+    gclient = googlemaps.Client(key='AIzaSyDqZBSnWiaoZsTxIbQjaNcM2xXuXk2IPv4',
+                                )
+    no_ubicables = []
+    ubicados = 0
+    for c in clientes:
+        dire = c.calle.nombre + c.puerta + ",ushuaia,tierra del fuego"
+        coords = gclient.geocode(address=dire)
+        if coords == []:
+            no_ubicables.append({"clientenro": c.clientenro})
+            continue
+        else:
+            ubicados += 1
+            c.latitud_4326 = coords[0]["geometry"]["location"]["lat"]
+            c.longitud_4326 = coords[0]["geometry"]["location"]["lng"]
+            c.save()
+        time.sleep(1)
+    with open("no_ubicables.txt", "w")as outfile:
+        json.dump(no_ubicables, outfile, ensure_ascii=False)
+    logger.info("ubicados: " + str(ubicados))
+
+    return HttpResponse(status=200)
 
 
 def convert_22172(request):
