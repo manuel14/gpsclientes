@@ -244,15 +244,14 @@ def clientes_geocode(request):
         latitud_4326__isnull=True,
         longitud_4326__isnull=True,
         calle__limite_inferior__lte=F('puerta'),
-        calle__limite_superior__gte=F('puerta'),
-
-    )[:300]
+        calle__limite_superior__gte=F('puerta')
+    )
     gclient = googlemaps.Client(key='AIzaSyDqZBSnWiaoZsTxIbQjaNcM2xXuXk2IPv4',
                                 )
     no_ubicables = []
     ubicados = 0
     for c in clientes:
-        dire = c.calle.nombre + str(c.puerta) + ",ushuaia,tierra del fuego"
+        dire = c.calle.nombre+ " " + str(c.puerta) + ",ushuaia,tierra del fuego"
         coords = gclient.geocode(address=dire)
         if coords == []:
             no_ubicables.append({"clientenro": c.clientenro})
