@@ -24,7 +24,7 @@ def index(request):
     page = request.GET.get('page')
     total = len(clientes)
     paginator = Paginator(clientes, 10)
-    cant_pend = Cliente.objects.filter(latitud_22172__isnull=True).count()
+    cant_pend = Cliente.objects.filter(latitud_4326__isnull=True).count()
     try:
         clientes_pags = paginator.page(page)
     except PageNotAnInteger:
