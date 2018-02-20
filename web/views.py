@@ -125,7 +125,7 @@ def error500(request):
 
 def completados(request):
     clientes = Cliente.objects.all().order_by('clientenro')
-    cant_comp = Cliente.objects.filter(latitud_22172__isnull=False).count()
+    cant_comp = Cliente.objects.filter(latitud_4326__isnull=False).count()
     total = len(clientes)
     page = request.GET.get('page')
     paginator = Paginator(clientes, 10)
