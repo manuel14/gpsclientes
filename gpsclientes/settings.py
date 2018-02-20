@@ -10,6 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
+try:
+    from local_settings import *
+except ImportError:
+    DEBUG = True
+
 import os
 import raven
 
@@ -24,7 +29,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '7)n0r_q8+c60_0pgmw_k0lbhc233ouom&k8l$$!uzo4o4mt!=('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ADMINS = [('Admin', 'manuel.zubieta@ushuaiavision.com.ar'),
           ('Admin', 'sistemas@ushuaiavision.com.ar')]
@@ -208,8 +212,3 @@ LOGGING = {
         }
     }
 }
-
-try:
-    from local_settings import *
-except ImportError:
-    pass
