@@ -8,6 +8,9 @@ from django.core.serializers.json import DjangoJSONEncoder
 from sigabd import sigabdConnector
 from .sigacredentials import USER, PASS
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from pykml import parser
+from pykml.factory import nsmap
+from django.views.decorators.csrf import csrf_exempt
 import json
 import googlemaps
 import logging
@@ -297,3 +300,27 @@ def ubicados(request):
         "latitud_4326", "longitud_4326", "clientenro", "nombre", "direccion",)
     return render(request, 'web/map.html',
                   {'clientes': json.dumps(list(clientes), cls=DjangoJSONEncoder)})
+
+
+@csrf_exempt
+def update_direccion(request):
+    lista = json.loads(request.body)
+    clientes = Cliente.objects.filter(clientenro__in=lista)
+    logger.info(len(clientes))
+    con = sigabdConnector(USER, PASS)
+    cont = 0
+    for c in clientes:
+        try:
+            direccion = con.get_direccion_for_cliente(c.clientenro)
+            if direccion["puerta"].strip() == "":
+                continue
+            c.direccion = direccion["calle"] + direccion["puerta"]
+            c.puerta = int(direccion["puerta"])
+            c.calle = Calle.objects.get(calleidsiga=direccion["calleid"])
+            c.save()
+            cont += 1
+            print(cont)
+        except (ObjectDoesNotExist, ValueError):
+            continue
+    logger.info(cont)
+    return HttpResponse(status=200)
