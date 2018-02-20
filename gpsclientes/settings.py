@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 try:
-    from local_settings import *
+    from .local_settings import *
 except ImportError:
     DEBUG = True
 
