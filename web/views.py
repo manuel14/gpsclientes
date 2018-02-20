@@ -147,7 +147,7 @@ def table_completados(request):
     length = int(request.GET['length'])
     global_search = request.GET['search[value]']
     if global_search:
-        all_objects = Cliente.objects.filter(Q(latitud_22172__isnull=False) & (
+        all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=False) & (
                                              Q(direccion__icontains=global_search)
                                              | Q(clientenro__icontains=global_search)
                                              | Q(nombre__icontains=global_search)
