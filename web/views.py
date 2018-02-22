@@ -251,7 +251,8 @@ def clientes_geocode(request):
     no_ubicables = []
     ubicados = 0
     for c in clientes:
-        dire = c.calle.nombre+ " " + str(c.puerta) + ",ushuaia,tierra del fuego"
+        dire = c.calle.nombre + " " + \
+            str(c.puerta) + ",ushuaia,tierra del fuego"
         coords = gclient.geocode(address=dire)
         if coords == []:
             no_ubicables.append({"clientenro": c.clientenro})
@@ -305,7 +306,6 @@ def ubicados(request):
 def update_direccion(request):
     lista = json.loads(request.body)
     clientes = Cliente.objects.filter(clientenro__in=lista)
-    logger.info(len(clientes))
     con = sigabdConnector(USER, PASS)
     cont = 0
     for c in clientes:
@@ -314,12 +314,12 @@ def update_direccion(request):
             if direccion["puerta"].strip() == "":
                 continue
             c.direccion = direccion["calle"] + direccion["puerta"]
-            c.puerta = int(direccion["puerta"])
-            c.calle = Calle.objects.get(calleidsiga=direccion["calleid"])
+            c.tira = direccion["tira"]
+            c.piso = direccion["piso"]
+            c.depto = direccion["depto"]
             c.save()
             cont += 1
-            print(cont)
         except (ObjectDoesNotExist, ValueError):
             continue
-    logger.info(cont)
+    logger.info("total:" + str(cont))
     return HttpResponse(status=200)

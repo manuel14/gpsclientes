@@ -1,7 +1,7 @@
 Django==1.11.1
 -e git+https://bitbucket.org/manuelzubieta/sigabd.git#egg=sigabd
 gunicorn>= 19.6.0
-psycopg2
+psycopg2-binary
 raven>=6.1.0
 openpyxl>=2.3.5
 googlemaps>=2.5.1
