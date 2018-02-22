@@ -49,6 +49,7 @@ class Cliente(models.Model):
     calle = models.ForeignKey(Calle, blank=True,
                               null=True, on_delete=models.SET_NULL, related_name="clientes")
     puerta = models.IntegerField(blank=True, null=True)
+    clicalubicacion = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return str(self.clientenro)

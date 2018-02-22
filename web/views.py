@@ -317,6 +317,7 @@ def update_direccion(request):
             c.tira = direccion["tira"]
             c.piso = direccion["piso"]
             c.depto = direccion["depto"]
+            c.clicalubicacion = direccion["clicalubicacion"]
             c.save()
             cont += 1
         except (ObjectDoesNotExist, ValueError):
