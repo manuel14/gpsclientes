@@ -8,7 +8,6 @@ colors = shuffle(['#F44336','#FF4081','#2196F3','#009688','#FFC107','#795548','#
 
 var dibujar = function() {
 	var markers = [];
-	var lines = [];
 	var color = getColor();
 	var lat_lng = new Array();
 	var latlngbounds = new google.maps.LatLngBounds();
@@ -22,8 +21,8 @@ var dibujar = function() {
 		var myLatLng = new google.maps.LatLng(val[0], val[1]);
 		lat_lng.push(myLatLng);
 		var content = '<div id="content">'+
-			'<h6>Nro cliente: '+val[5]+'</h6>'+
-			'<h6>Nombre: '+val[2]+'</h6>'+
+			'<h6>Nro cliente: '+val[2]+'</h6>'+
+			'<h6>Nombre: '+val[3]+'</h6>'+
 			'<h6>Direccion: '+val[4]+'</h6>'+
 			'</div>';
 		var infowindow = new google.maps.InfoWindow({
@@ -52,15 +51,6 @@ var dibujar = function() {
 	});
 	map.setCenter(latlngbounds.getCenter());
 	map.fitBounds(latlngbounds);
-	var line = new google.maps.Polyline({
-		path: lat_lng,
-		geodesic: true,
-		strokeColor: color,
-		strokeOpacity: 1.0,
-		strokeWeight: 2
-	})
-	lines.push(line);
-	line.setMap(map);
 }
 
 var limpiar = function(markers,lines) {
