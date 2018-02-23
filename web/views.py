@@ -8,13 +8,12 @@ from django.core.serializers.json import DjangoJSONEncoder
 from sigabd import sigabdConnector
 from .sigacredentials import USER, PASS
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from pykml import parser
-from pykml.factory import nsmap
 from django.views.decorators.csrf import csrf_exempt
 import json
 import googlemaps
 import logging
 import time
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -223,14 +222,17 @@ def calle_for_cliente(request):
             result = con.get_calle_for_cliente(c)
             if result:
                 try:
-                    puerta = int(result[0].strip())
+                    puerta = int(result["puerta"])
                 except ValueError:
                     continue
-                calleid = result[1]
-                calle = Calle.objects.get(calleidsiga=calleid)
-                cli.calle = calle
-                cli.puerta = puerta
-                cli.save()
+                calleid = result["calleidsiga"]
+                try:
+                    calle = Calle.objects.get(calleidsiga=calleid)
+                    cli.calle = calle
+                    cli.puerta = puerta
+                    cli.save()
+                except ObjectDoesNotExist:
+                    continue
             else:
                 continue
         except (ObjectDoesNotExist, MultipleObjectsReturned):
