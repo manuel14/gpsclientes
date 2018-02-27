@@ -24,6 +24,7 @@ class Calle(models.Model):
     calleidsiga = models.IntegerField()
     limite_inferior = models.IntegerField(blank=True, null=True)
     limite_superior = models.IntegerField(blank=True, null=True)
+    calle_chica = models.NullBooleanField()
 
     def __str__(self):
         return self.nombre

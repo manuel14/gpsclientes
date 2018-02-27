@@ -1,5 +1,6 @@
 from openpyxl import load_workbook
 from .models import Cliente, Calle
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 
 def load_clientes():
@@ -45,11 +46,13 @@ def load_clientes():
 
 def load_calles():
     wb = load_workbook('calles_completo.xlsx')
-    ws = wb.get_sheet_by_name('calles_completo')
-    calles = []
+    ws = wb['calles_completo']
     for r in range(2, ws.max_row + 1):
         if ws['F%s' % (r)].value is None or ws['F%s' % (r)].value == "":
             continue
+        else:
+            calleidsiga = ws['F%s' % (r)].value
+        nombre = ws['A%s' % (r)].value
         if ws['B%s' % (r)].value is None or ws['A%s' % (r)].value == "":
             lim_inf = None
         else:
@@ -67,15 +70,21 @@ def load_calles():
         elif ws['E%s' % (r)].value == 'NO':
             osm_geocode = False
         else:
-            osm_geocode = None
-        c = Calle(
-            nombre=ws['A%s' % (r)].value,
-            limite_inferior=lim_inf,
-            limite_superior=lim_sup,
-            calleidsiga=ws['F%s' % (r)].value,
-            geocode=geocode,
-            osm_geocode=osm_geocode
-        )
-        calles.append(c)
-    Calle.objects.bulk_create(calles)
+            osm_geocode = False
+        if ws['G%s' % (r)].value == 'SI':
+            calle_chica = True
+        else:
+            calle_chica = False
+        try:
+            c = Calle.objects.get(calleidsiga=calleidsiga)
+        except (ObjectDoesNotExist, MultipleObjectsReturned):
+            continue
+        c.nombre = nombre
+        c.limite_inferior = lim_inf
+        c.limite_superior = lim_sup
+        c.calleidsiga = calleidsiga
+        c.geocode = geocode
+        c.osm_geocode = osm_geocode
+        c.calle_chica = calle_chica
+        c.save()
     return True
