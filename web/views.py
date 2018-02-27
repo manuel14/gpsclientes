@@ -242,11 +242,18 @@ def calle_for_cliente(request):
 
 def clientes_geocode(request):
     clientes = Cliente.objects.filter(
-        puerta__isnull=False,
-        latitud_4326__isnull=True,
-        longitud_4326__isnull=True,
-        calle__limite_inferior__lte=F('puerta'),
-        calle__limite_superior__gte=F('puerta')
+        (Q(puerta__isnull=False) &
+         Q(latitud_4326__isnull=True) &
+         Q(longitud_4326__isnull=True) &
+         Q(calle__limite_inferior__lte=F('puerta')) &
+         Q(calle__limite_superior__gte=F('puerta'))
+         )
+        | (Q(latitud_4326__isnull=True) &
+           Q(longitud_4326__isnull=True) &
+            Q(calle__calle_chica=True) &
+            Q(puerta__isnull=False) &
+            Q(calle__isnull=False)&
+            Q(geocode=True))
     )
     gclient = googlemaps.Client(key='AIzaSyDqZBSnWiaoZsTxIbQjaNcM2xXuXk2IPv4',
                                 )
