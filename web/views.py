@@ -252,8 +252,8 @@ def clientes_geocode(request):
            Q(longitud_4326__isnull=True) &
             Q(calle__calle_chica=True) &
             Q(puerta__isnull=False) &
-            Q(calle__isnull=False)&
-            Q(geocode=True))
+            Q(calle__isnull=False) &
+            Q(calle__geocode=True))
     )
     gclient = googlemaps.Client(key='AIzaSyDqZBSnWiaoZsTxIbQjaNcM2xXuXk2IPv4',
                                 )
@@ -333,3 +333,35 @@ def update_direccion(request):
             continue
     logger.info("total:" + str(cont))
     return HttpResponse(status=200)
+
+
+def osm_geocode(request):
+    clientes = Cliente.objects.filter(
+        calle__osm_geocode=True,
+        calle__calle_chica=True,
+        latitud_4326__isnull=True,
+        longitud_4326__isnull=True
+    )[:10]
+    url = "https://nominatim.openstreetmap.org/"
+    url += "?format=json"
+    cont = 0
+    no_ubicados = []
+    for c in clientes:
+        try:
+            url += "&street=%s" % c.calle.nombre + " " + str(c.puerta)
+        except ValueError:
+            continue
+        url += "&city=ushuaia&country=argentina&limit=1"
+        r = requests.get(url)
+        if r.status_code == 200 and r.json() != []:
+            coords = r.json()[0]
+            c.latitud_4326 = coords["lat"]
+            c.longitud_4326 = coords["lon"]
+            c.save()
+            cont += 1
+        else:
+            no_ubicados.append({"clientenro": c.clientenro,
+                                "direccion": c.calle.nombre})
+    logger.info("ubicados:" + str(cont))
+    json_out = json.dumps(no_ubicados)
+    return JsonResponse(json_out, safe=False)

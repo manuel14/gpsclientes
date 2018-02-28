@@ -17,4 +17,5 @@ urlpatterns = [
     url(r'^form_ubicados/$', views.form_ubicados, name="form_ubicados"),
     url(r'^calle_cliente/$', views.calle_for_cliente, name="calle_cliente"),
     url(r'^update_direccion/$', views.update_direccion, name="update_direccion"),
+    url(r'^osm_geocode/$', views.osm_geocode, name="osm_geocode"),
 ]
