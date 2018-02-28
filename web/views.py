@@ -213,7 +213,8 @@ def geocoder(request):
 
 
 def calle_for_cliente(request):
-    clientes = Cliente.objects.filter(calle__isnull=True).values_list(
+    clientes = Cliente.objects.filter(calle__isnull=True,
+                                      latitud_4326__isnull=True).values_list(
         "clientenro", flat=True)
     con = sigabdConnector(USER, PASS)
     for c in clientes:
