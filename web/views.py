@@ -218,25 +218,22 @@ def calle_for_cliente(request):
         "clientenro", flat=True)
     con = sigabdConnector(USER, PASS)
     for c in clientes:
-        try:
-            cli = Cliente.objects.get(clientenro=c)
-            result = con.get_calle_for_cliente(c)
-            if result:
-                try:
-                    puerta = int(result["puerta"])
-                except ValueError:
-                    continue
-                calleid = result["calleidsiga"]
-                try:
-                    calle = Calle.objects.get(calleidsiga=calleid)
-                    cli.calle = calle
-                    cli.puerta = puerta
-                    cli.save()
-                except ObjectDoesNotExist:
-                    continue
-            else:
+        cli = Cliente.objects.get(clientenro=c)
+        result = con.get_calle_for_cliente(c)
+        if result:
+            try:
+                puerta = int(result["puerta"])
+            except ValueError:
                 continue
-        except (ObjectDoesNotExist, MultipleObjectsReturned):
+            calleid = result["calleidsiga"]
+            try:
+                calle = Calle.objects.get(calleidsiga=calleid)
+                cli.calle = calle
+                cli.puerta = puerta
+                cli.save()
+            except (ObjectDoesNotExist, MultipleObjectsReturned):
+                continue
+        else:
             continue
     return HttpResponse(status=200)
 
