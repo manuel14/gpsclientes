@@ -93,14 +93,10 @@ def clientestable(request):
         html_edif = "<div id=""edif"" class=""form-check""><label class=""form-check-label""><input class=""form-check-input"" type=""checkbox"" value=""{0}"">Es edificio</label></div>".format(
             clientenro)
         dire = i["direccion"] + " "
-        if i["tira"] and i["piso"] and i["depto"]:
-            dire += "tira:" + i["tira"] + " " + "piso:" + \
-                i["piso"] + " " + "depto:" + i["depto"]
-
-        elif i["tira"] and i["depto"]:
-            dire += "tira:" + i["tira"] + " " + "depto:" + i["depto"]
-        elif i["tira"]:
+        if i["tira"] and i["tira"].strip() != "":
             dire += "tira:" + i["tira"]
+        if i["clicalubicacion"]:
+            dire += i["clicalubicacion"]
         ret = [i[j] if j not in ['direccion', 'posicion', 'edificio']
                else dire if j == 'direccion' else html_pos if j == 'posicion' else html_edif for j in columns]
         objects.append(ret)
@@ -244,7 +240,8 @@ def clientes_geocode(request):
          Q(latitud_4326__isnull=True) &
          Q(longitud_4326__isnull=True) &
          Q(calle__limite_inferior__lte=F('puerta')) &
-         Q(calle__limite_superior__gte=F('puerta'))
+         Q(calle__limite_superior__gte=F('puerta'))&
+         Q(calle__geocode=True)
          )
         | (Q(latitud_4326__isnull=True) &
            Q(longitud_4326__isnull=True) &
