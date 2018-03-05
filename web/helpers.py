@@ -1,6 +1,7 @@
 from openpyxl import load_workbook
 from .models import Cliente, Calle
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from sigabd import sigabdConnector
 
 
 def load_clientes():
@@ -88,3 +89,13 @@ def load_calles():
         c.calle_chica = calle_chica
         c.save()
     return True
+
+def update_estado():
+    clientes = Cliente.objects.filter(estado__isnull=True)
+    for c in clientes:
+        con = sigabdConnector("SIGAARG", "SIGAARG")
+        r = con.get_estado_for_cliente(c.clientenro)
+        c.estado = r
+        c.save()
+    return True
+

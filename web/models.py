@@ -51,6 +51,26 @@ class Cliente(models.Model):
                               null=True, on_delete=models.SET_NULL, related_name="clientes")
     puerta = models.IntegerField(blank=True, null=True)
     clicalubicacion = models.CharField(max_length=200, null=True, blank=True)
+    P = "P"
+    C = "C"
+    X = "X"
+    B = "B"
+    K = "K"
+    E = "E"
+    M = "M"
+    A = "A"
+    estado_choices = (
+        (P, 'Pendiente'),
+        (C, 'Conectado'),
+        (X, 'Desconectado'),
+        (B, "Ingresado"),
+        (E, 'liquidado'),
+        (M, 'Baja Moroso'),
+        (A, 'Anulado'),
+        (K,'Cortado')
+    )
+    estado = models.CharField(
+        max_length=20, choices=estado_choices, default=C)
 
     def __str__(self):
         return str(self.clientenro)
