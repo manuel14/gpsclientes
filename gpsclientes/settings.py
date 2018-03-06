@@ -195,6 +195,11 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
+        'web.cron_tasks': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
         'django.db.backends': {
             'level': 'ERROR',
             'handlers': ['console'],
