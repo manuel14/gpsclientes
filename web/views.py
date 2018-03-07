@@ -19,11 +19,11 @@ logger = logging.getLogger(__name__)
 
 
 def index(request):
-    clientes = Cliente.objects.all().order_by('clientenro')
+    clientes = Cliente.objects.filter(estado='C').order_by('clientenro')
     page = request.GET.get('page')
     total = len(clientes)
     paginator = Paginator(clientes, 10)
-    cant_pend = Cliente.objects.filter(latitud_4326__isnull=True).count()
+    cant_pend = Cliente.objects.filter(latitud_4326__isnull=True, estado='C').count()
     try:
         clientes_pags = paginator.page(page)
     except PageNotAnInteger:
@@ -102,12 +102,14 @@ def clientestable(request):
                else dire if j == 'direccion' else html_pos if j == 'posicion' else html_edif for j in columns]
         objects.append(ret)
     filtered_count = all_objects.count()
-    total_count = Cliente.objects.all().count()
+    total_count = Cliente.objects.filter(estado='C').count()
     return JsonResponse({
         "draw": draw,
         "recordsTotal": total_count,
         "recordsFiltered": filtered_count,
         "data": objects,
+        "order": [[2, 'desc']],
+        "orderable": [2, True]
     })
 
 
@@ -120,8 +122,8 @@ def error500(request):
 
 
 def completados(request):
-    clientes = Cliente.objects.all().order_by('clientenro')
-    cant_comp = Cliente.objects.filter(latitud_4326__isnull=False).count()
+    clientes = Cliente.objects.filter(estado='C').order_by('clientenro')
+    cant_comp = Cliente.objects.filter(latitud_4326__isnull=False, estado='C').count()
     total = len(clientes)
     page = request.GET.get('page')
     paginator = Paginator(clientes, 10)
@@ -170,12 +172,13 @@ def table_completados(request):
                else html_pos if j == 'posicion' else dire for j in columns]
         objects.append(ret)
     filtered_count = all_objects.count()
-    total_count = Cliente.objects.all().count()
+    total_count = Cliente.objects.filter(estado='C').count()
     return JsonResponse({
         "draw": draw,
         "recordsTotal": total_count,
         "recordsFiltered": filtered_count,
         "data": objects,
+        "order": [[2, 'desc']]
     })
 
 
