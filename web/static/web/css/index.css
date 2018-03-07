@@ -1,9 +1,3 @@
-#clientes{
-	padding:0;
-}
-
-
-
 @media(max-width: 769px){
 	body{
 		overflow-x: auto;
@@ -12,45 +6,37 @@
 		font-size: 18px;
 	}
 }
-
 body{overflow-x: hidden;}
-
 .dataTables_length{
 	display:None;
 }
-
 .dataTables_filter  label{
 	margin-right:10px;
+	padding-right: 10px;
 	
 }
-
 .dataTables_info{
 	display:None;
 }
-
-
 .page-item{
 	margin-right: 6px;
 }
-
 .page-item:last-child{
 	margin-left: 6px;
 }
-
 .pagination span{
 	margin-right: 4px;
 }
-
 .container-fluid{
-	padding-left: 5px;
+	padding: 0px;
+	margin: 0px;
 }
-
 .dataTables_paginate ul.pagination{
 	justify-content: flex-start;
 }
-
-#tb_clientes table{
-	padding-right: 0px;
-	width: 100%;
+.tablerow{
+	margin: 0px;
 }
-
+#clientes{
+	padding:0px;
+}

@@ -20,13 +20,13 @@
         <form method="post" id="clientes" class="col-12" action="">
         {% csrf_token %}
             <div class="table-responsive">
-              <table id="tb_clientes_completados" class="table table-hover">
+              <table style="padding-left:5px;" id="tb_clientes_completados" class="table table-hover">
                   <thead class="thead-dark ">
                       <tr>
-                        <th data-field="clientenro">Número de cliente</th>
-                        <th data-field="nombre">Nombre</th> 
-                        <th data-field="direccion">Dirección</th>
-                        <th data-field="posicion">Posición</th>
+                        <th style="width:10%;" data-field="clientenro">Número de cliente</th>
+                        <th style="width:20%;" data-field="nombre">Nombre</th> 
+                        <th style="width:50%;" data-field="direccion">Dirección</th>
+                        <th style="width:20%;" data-field="posicion">Posición</th>
                       </tr>
                   </thead>
                   <tbody>

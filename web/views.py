@@ -73,7 +73,8 @@ def clientestable(request):
     length = int(request.GET['length'])
     global_search = request.GET['search[value]']
     if global_search:
-        all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=True) &
+        all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=True)& 
+                                              (Q(estado='C'))&
                                              (Q(direccion__icontains=global_search)
                                               | Q(clientenro__icontains=global_search)
                                               | Q(nombre__icontains=global_search)
@@ -82,7 +83,7 @@ def clientestable(request):
                                               | Q(depto__icontains=global_search)
                                               ))
     else:
-        all_objects = Cliente.objects.filter(latitud_4326__isnull=True)
+        all_objects = Cliente.objects.filter(latitud_4326__isnull=True, estado='C')
     columns = ['clientenro', 'nombre', 'direccion', 'posicion', 'edificio']
     objects = []
 
@@ -94,9 +95,9 @@ def clientestable(request):
             clientenro)
         dire = i["direccion"] + " "
         if i["tira"] and i["tira"].strip() != "":
-            dire += "tira:" + i["tira"]
+            dire += "tira:" + i["tira"].strip()
         if i["clicalubicacion"]:
-            dire += i["clicalubicacion"]
+            dire += " " + i["clicalubicacion"]
         ret = [i[j] if j not in ['direccion', 'posicion', 'edificio']
                else dire if j == 'direccion' else html_pos if j == 'posicion' else html_edif for j in columns]
         objects.append(ret)
@@ -142,8 +143,9 @@ def table_completados(request):
     length = int(request.GET['length'])
     global_search = request.GET['search[value]']
     if global_search:
-        all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=False) & (
-                                             Q(direccion__icontains=global_search)
+        all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=False) & 
+                                            (Q(estado='C')) &                                
+                                            (Q(direccion__icontains=global_search)
                                              | Q(clientenro__icontains=global_search)
                                              | Q(nombre__icontains=global_search)
                                              | Q(tira__icontains=global_search)
@@ -151,7 +153,7 @@ def table_completados(request):
                                              | Q(depto__icontains=global_search)
                                              ))
     else:
-        all_objects = Cliente.objects.filter(latitud_4326__isnull=False)
+        all_objects = Cliente.objects.filter(latitud_4326__isnull=False, estado='C')
     columns = ['clientenro', 'nombre', 'direccion', 'posicion']
     objects = []
 
@@ -160,15 +162,10 @@ def table_completados(request):
         html_pos = "<button type=""button"" id=""{0}"" value=""{0}"" class=""{1}"">Obtener Posición</button>".format(
             clientenro, "btn")
         dire = i["direccion"] + " "
-        if i["tira"] and i["piso"] and i["depto"]:
-            dire += "tira:" + i["tira"] + " " + "piso:" + \
-                i["piso"] + " " + "depto:" + i["depto"]
-
-        elif i["tira"] and i["depto"]:
-            dire += "tira:" + i["tira"] + " " + "depto:" + i["depto"]
-        elif i["tira"]:
+        if i["tira"] and i["tira"].strip() != "":
             dire += "tira:" + i["tira"]
-
+        if i["clicalubicacion"]:
+            dire += " " + i["clicalubicacion"]
         ret = [i[j] if j not in ["posicion", 'direccion']
                else html_pos if j == 'posicion' else dire for j in columns]
         objects.append(ret)
