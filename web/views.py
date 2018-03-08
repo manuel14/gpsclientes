@@ -96,8 +96,9 @@ def clientestable(request):
         dire = i["direccion"] + " "
         if i["tira"] and i["tira"].strip() != "":
             dire += "tira:" + i["tira"].strip()
-        if i["clicalubicacion"]:
-            dire += " " + i["clicalubicacion"]
+        else:
+            if i["clicalubicacion"]:
+                dire += " " + i["clicalubicacion"]
         ret = [i[j] if j not in ['direccion', 'posicion', 'edificio']
                else dire if j == 'direccion' else html_pos if j == 'posicion' else html_edif for j in columns]
         objects.append(ret)
@@ -166,8 +167,9 @@ def table_completados(request):
         dire = i["direccion"] + " "
         if i["tira"] and i["tira"].strip() != "":
             dire += "tira:" + i["tira"]
-        if i["clicalubicacion"]:
-            dire += " " + i["clicalubicacion"]
+        else:
+            if i["clicalubicacion"]:
+                dire += " " + i["clicalubicacion"]
         ret = [i[j] if j not in ["posicion", 'direccion']
                else html_pos if j == 'posicion' else dire for j in columns]
         objects.append(ret)
