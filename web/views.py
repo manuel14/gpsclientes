@@ -46,10 +46,10 @@ def position(request):
     edif_flag = request.POST.get("edif_flag", None)
     if lat_22172 and lon_22172 and clientenro and precision:
         cli = Cliente.objects.get(clientenro=clientenro)
-        cli.latitud_4326 = round(float(lat_4326), 2)
-        cli.longitud_4326 = round(float(lon_4326), 2)
-        cli.latitud_22172 = round(float(lat_22172), 2)
-        cli.longitud_22172 = round(float(lon_22172), 2)
+        cli.latitud_4326 = lat_4326
+        cli.longitud_4326 = lon_4326
+        cli.latitud_22172 = lat_22172
+        cli.longitud_22172 = lon_22172
         cli.precision = precision
         cli.fecha_posicion = datetime.now()
         cli.save()
@@ -57,10 +57,10 @@ def position(request):
             clientes = Cliente.objects.filter(Q(
                 direccion=cli.direccion) & Q(tira=cli.tira) | Q(direccion=cli.direccion))
             for c in clientes:
-                c.latitud_4326 = round(float(lat_4326), 2)
-                c.longitud_4326 = round(float(lon_4326), 2)
-                c.latitud_22172 = round(float(lat_22172), 2)
-                c.longitud_22172 = round(float(lon_22172), 2)
+                c.latitud_4326 = lat_4326
+                c.longitud_4326 = lon_4326
+                c.latitud_22172 = lat_22172
+                c.longitud_22172 = lon_22172
                 c.precision = precision
                 c.fecha_posicion = datetime.now()
                 c.save()
