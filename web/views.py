@@ -54,8 +54,8 @@ def position(request):
         cli.fecha_posicion = datetime.now()
         cli.save()
         if edif_flag == "true":
-            clientes = Cliente.objects.filter(Q(
-                direccion=cli.direccion) & Q(tira=cli.tira) | Q(direccion=cli.direccion))
+            clientes = Cliente.objects.filter(
+                direccion=cli.direccion, tira=cli.tira)
             for c in clientes:
                 c.latitud_4326 = lat_4326
                 c.longitud_4326 = lon_4326
@@ -198,7 +198,7 @@ def tracking(request):
         'clientenro'
     )
     return render(request, 'web/map.html',
-                  {'clientes': json.dumps(list(completados), cls=DjangoJSONEncoder)})
+                  {'titulo': "Mapa de calor", 'clientes': json.dumps(list(completados), cls=DjangoJSONEncoder)})
 
 
 def form_tracking(request):
@@ -302,8 +302,8 @@ def form_ubicados(request):
 
 
 def ubicados(request):
-    clientes = Cliente.objects.filter(latitud_4326__isnull=False).values_list(
-        "latitud_4326", "longitud_4326", "clientenro", "nombre", "direccion",)
+    clientes = Cliente.objects.filter(latitud_4326__isnull=False, estado='C').values_list(
+        "latitud_4326", "longitud_4326", "clientenro", "nombre", "direccion")
     return render(request, 'web/map.html',
                   {'clientes': json.dumps(list(clientes), cls=DjangoJSONEncoder)})
 
@@ -338,7 +338,7 @@ def osm_geocode(request):
         calle__calle_chica=True,
         latitud_4326__isnull=True,
         longitud_4326__isnull=True
-    )[:10]
+    )
     url = "https://nominatim.openstreetmap.org/"
     url += "?format=json"
     cont = 0
