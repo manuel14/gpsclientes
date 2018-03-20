@@ -71,6 +71,7 @@ class Cliente(models.Model):
     )
     estado = models.CharField(
         max_length=20, choices=estado_choices, default=C)
+    nodo = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         return str(self.clientenro)

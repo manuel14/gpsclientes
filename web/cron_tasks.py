@@ -2,41 +2,92 @@ from web.models import Cliente, Calle
 from django.db.models import Max
 from sigabd import sigabdConnector
 from . sigacredentials import USER, PASS
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 import logging
+import json
 
-logger = logging.getLogger(__name__) 
+logger = logging.getLogger(__name__)
+
 
 def complete_clientes():
-	maximo = Cliente.objects.all().aggregate(Max('clientenro'))["clientenro__max"]
-	con = sigabdConnector(USER, PASS)
-	result = con.complete_clientes(maximo)
-	logger.info(len(result))
-	clientes = []
-	for r in result:
-		try:
-			ca = Calle.objects.get(calleidsiga=r["calleidsiga"])
-		except ObjectDoesNotExist:
-			ca = Calle(
-				calleidsiga=r["calleidsiga"],
-				nombre=r["callenombre"]
-				)
-			ca.save()
-		except MultipleObjectsReturned:
-			logger.info(r["calleidsiga"])
-		try:
-			puerta = int(r["puerta"])
-		except (ValueError, TypeError):
-			puerta = None
-		c = Cliente(
-			clientenro=r["clientenro"], nombre=r["nombre"],
-			clicalubicacion=r["ubicacion"], piso=r["piso"],
-			depto=r["depto"], estado=r["estado"],
-			puerta=puerta, calle=ca
-			)
-		clientes.append(c)
-	Cliente.objects.bulk_create(clientes)
-	return HttpResponse(status=200)
+    maximo = Cliente.objects.all().aggregate(
+        Max('clientenro'))["clientenro__max"]
+    con = sigabdConnector(USER, PASS)
+    result = con.complete_clientes(maximo)
+    logger.info(len(result))
+    clientes = []
+    for r in result:
+        try:
+            ca = Calle.objects.get(calleidsiga=r["calleidsiga"])
+        except ObjectDoesNotExist:
+            ca = Calle(
+                calleidsiga=r["calleidsiga"],
+                nombre=r["callenombre"]
+            )
+            ca.save()
+        except MultipleObjectsReturned:
+            logger.info(r["calleidsiga"])
+        try:
+            puerta = int(r["puerta"])
+        except (ValueError, TypeError):
+            puerta = None
+        c = Cliente(
+            clientenro=r["clientenro"], nombre=r["nombre"],
+            clicalubicacion=r["ubicacion"], piso=r["piso"],
+            depto=r["depto"], estado=r["estado"],
+            puerta=puerta, calle=ca
+        )
+        clientes.append(c)
+    Cliente.objects.bulk_create(clientes)
+    return HttpResponse(status=200)
 
 
+"""Método que actualiza estado, calle,puerta y nodo trayendo la info desde siga
+    Informa la cantidad de actualizados contra el total
+"""
+
+
+def update_pendientes():
+    clientes = Cliente.objects.filter(latitud_4326__isnull=True)
+    con = sigabdConnector(USER, PASS)
+    cont = 0
+    for cli in clientes:
+        dire = con.get_calle_for_cliente(cli.clientenro)
+        estado = con.get_estado_for_cliente(cli.clientenro)
+        nodo = con.get_nodo_for_cliente(cli.clientenro)
+        try:
+            if int(dire["puerta"]) != cli.puerta:
+                cli.puerta = int(dire["puerta"])
+                cli.save()
+            if dire["calleidsiga"] != cli.calle.calleidsiga:
+                cli.calle = Calle.object.get(calleidsiga=dire["calleidsiga"])
+        except (TypeError, AttributeError, ValueError):
+            continue
+        logger.info(estado)
+        if estado != cli.estado:
+            cli.estado = estado
+            cli.save()
+        logger.info(nodo)
+        if cli.nodo != nodo:
+            cli.nodo = nodo
+            cli.save()
+        cont += 1
+    logger.info("actualizados: " + str(cont) + "total: " + str(len(clientes)))
+    return True
+
+
+"""Carga de nodo a todos los clientes de la bd"""
+
+
+def cargar_nodo():
+    clientes = Cliente.objects.all()
+    cont = 0
+    con = sigabdConnector(USER, PASS)
+    for c in clientes:
+        nodo = con.get_nodo_for_cliente(c.clientenro)
+        c.nodo = nodo
+        c.save()
+        cont += 1
+    logger.info("act: " + str(cont))
+    return True
