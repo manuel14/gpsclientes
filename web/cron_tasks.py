@@ -62,8 +62,9 @@ def update_pendientes():
                 cli.save()
             if dire["calleidsiga"] != cli.calle.calleidsiga:
                 cli.calle = Calle.object.get(calleidsiga=dire["calleidsiga"])
+                cli.save()
         except (TypeError, AttributeError, ValueError):
-            continue
+            pass
         logger.info(estado)
         if estado != cli.estado:
             cli.estado = estado
