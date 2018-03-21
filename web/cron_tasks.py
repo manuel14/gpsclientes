@@ -90,7 +90,7 @@ def cargar_nodo():
         if nodo_info:
             try:
                 nodo = Nodo.objects.get(zonaid=nodo_info["zonaid"])
-                c.nodo = nodo
+                c.nodo_fk = nodo
                 c.save()
                 cont += 1
             except ObjectDoesNotExist:
