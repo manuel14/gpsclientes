@@ -72,7 +72,7 @@ class Cliente(models.Model):
     )
     estado = models.CharField(
         max_length=20, choices=estado_choices, default=C)
-    nodo_fk = models.ForeignKey(Nodo, on_delete=models.SET_NULL, null=True, blank=True)
+    nodo_fk = models.ForeignKey(Nodo, on_delete=models.SET_NULL, null=True, blank=True, default=None)
 
     def __str__(self):
         return str(self.clientenro)
