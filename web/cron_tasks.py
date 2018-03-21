@@ -1,4 +1,4 @@
-from web.models import Cliente, Calle
+from web.models import Cliente, Calle, Nodo
 from django.db.models import Max
 from sigabd import sigabdConnector
 from . sigacredentials import USER, PASS
@@ -82,13 +82,35 @@ def update_pendientes():
 
 
 def cargar_nodo():
-    clientes = Cliente.objects.filter(nodo__isnull=True)
+    clientes = Cliente.objects.all()
     cont = 0
     con = sigabdConnector(USER, PASS)
     for c in clientes:
-        nodo = con.get_nodo_for_cliente(c.clientenro)
-        c.nodo = nodo
-        c.save()
-        cont += 1
+        nodo_info = con.get_nodo_for_cliente(c.clientenro)
+        if nodo_info:
+            try:
+                nodo = Nodo.objects.get(zonaid=nodo_info["zonaid"])
+                c.nodo = nodo
+                c.save()
+            except ObjectDoesNotExist:
+                continue
+            c.save()
+            cont += 1
+        else:
+            continue
     logger.info("act: " + str(cont))
+    return True
+
+
+def llenar_tabla_nodo():
+    con = sigabdConnector(USER, PASS)
+    nodos = con.get_nodos()
+    nodos_lista = []
+    for n in nodos:
+        nodo_obj = Nodo(
+            nombre=n["zonanombre"],
+            zonaid=n["zonaid"]
+        )
+        nodos_lista.append(nodo_obj)
+    Nodo.objects.bulk_create(nodos_lista)
     return True

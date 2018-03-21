@@ -11,7 +11,7 @@ class BarrioAdmin(admin.ModelAdmin):
 
 
 class NodoAdmin(admin.ModelAdmin):
-    ordering = ('numero', )
+    ordering = ('zonaid', )
 
 
 class CalleAdmin(admin.ModelAdmin):

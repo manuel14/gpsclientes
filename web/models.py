@@ -2,7 +2,8 @@ from django.db import models
 
 
 class Nodo(models.Model):
-    numero = models.CharField(max_length=20, unique=True)
+    nombre = models.CharField(max_length=40, unique=True, default="")
+    zonaid = models.IntegerField(default=0)
 
     def __str__(self):
         return self.numero
@@ -71,7 +72,7 @@ class Cliente(models.Model):
     )
     estado = models.CharField(
         max_length=20, choices=estado_choices, default=C)
-    nodo = models.CharField(max_length=100, null=True, blank=True)
+    nodo = models.ForeignKey(Nodo, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return str(self.clientenro)
