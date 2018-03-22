@@ -4,6 +4,7 @@ from sigabd import sigabdConnector
 from . sigacredentials import USER, PASS
 from django.http import HttpResponse, JsonResponse
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.db.utils import IntegrityError
 import logging
 import json
 
@@ -16,7 +17,6 @@ def complete_clientes():
     con = sigabdConnector(USER, PASS)
     result = con.complete_clientes(maximo)
     logger.info(len(result))
-    clientes = []
     for r in result:
         try:
             ca = Calle.objects.get(calleidsiga=r["calleidsiga"])
@@ -28,6 +28,7 @@ def complete_clientes():
             ca.save()
         except MultipleObjectsReturned:
             logger.info(r["calleidsiga"])
+            continue
         try:
             puerta = int(r["puerta"])
         except (ValueError, TypeError):
@@ -38,8 +39,16 @@ def complete_clientes():
             depto=r["depto"], estado=r["estado"],
             puerta=puerta, calle=ca
         )
-        clientes.append(c)
-    Cliente.objects.bulk_create(clientes)
+        try:
+            c.save()
+        except IntegrityError:
+            logger.info(c.clientenro)
+            continue
+        if puerta:
+            c.direccion = ca.nombre + " " + str(puerta)
+        else:
+            c.direccion = ca.nombre
+        c.save()
     return HttpResponse(status=200)
 
 
@@ -56,6 +65,7 @@ def update_pendientes():
         dire = con.get_calle_for_cliente(cli.clientenro)
         estado = con.get_estado_for_cliente(cli.clientenro)
         nodo = con.get_nodo_for_cliente(cli.clientenro)
+        nodo = nodo["zonaid"]
         try:
             if int(dire["puerta"]) != cli.puerta:
                 cli.puerta = int(dire["puerta"])
