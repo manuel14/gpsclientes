@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Cliente, Calle
+from .models import Cliente, Calle, Nodo
 from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q, F
@@ -73,8 +73,9 @@ def clientestable(request):
     length = int(request.GET['length'])
     global_search = request.GET['search[value]']
     if global_search:
-        all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=True)& 
-                                              (Q(estado='C'))&
+        all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=True) &
+                                              (Q(estado='C')) &
+                                              (Q(geolocation=True)) &
                                              (Q(direccion__icontains=global_search)
                                               | Q(clientenro__icontains=global_search)
                                               | Q(nombre__icontains=global_search)
@@ -83,7 +84,10 @@ def clientestable(request):
                                               | Q(depto__icontains=global_search)
                                               ))
     else:
-        all_objects = Cliente.objects.filter(latitud_4326__isnull=True, estado='C')
+        all_objects = Cliente.objects.filter(
+            latitud_4326__isnull=True, estado='C',
+            geolocation=True
+        )
     columns = ['clientenro', 'nombre', 'direccion', 'posicion', 'edificio']
     objects = []
 
@@ -123,8 +127,11 @@ def error500(request):
 
 
 def completados(request):
-    clientes = Cliente.objects.filter(estado='C').order_by('clientenro')
-    cant_comp = Cliente.objects.filter(latitud_4326__isnull=False, estado='C').count()
+    clientes = Cliente.objects.filter(
+        estado='C', geolocation=True).order_by('clientenro')
+    cant_comp = Cliente.objects.filter(
+        latitud_4326__isnull=False, estado='C',
+        geolocation=True).count()
     total = len(clientes)
     page = request.GET.get('page')
     paginator = Paginator(clientes, 10)
@@ -146,17 +153,20 @@ def table_completados(request):
     length = int(request.GET['length'])
     global_search = request.GET['search[value]']
     if global_search:
-        all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=False) & 
-                                            (Q(estado='C')) &                                
-                                            (Q(direccion__icontains=global_search)
-                                             | Q(clientenro__icontains=global_search)
-                                             | Q(nombre__icontains=global_search)
-                                             | Q(tira__icontains=global_search)
-                                             | Q(piso__icontains=global_search)
-                                             | Q(depto__icontains=global_search)
-                                             ))
+        all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=False) &
+                                             (Q(estado='C')) &
+                                             (Q(geolocation=True))&
+                                             (Q(direccion__icontains=global_search)
+                                              | Q(clientenro__icontains=global_search)
+                                              | Q(nombre__icontains=global_search)
+                                              | Q(tira__icontains=global_search)
+                                              | Q(piso__icontains=global_search)
+                                              | Q(depto__icontains=global_search)
+                                              ))
     else:
-        all_objects = Cliente.objects.filter(latitud_4326__isnull=False, estado='C')
+        all_objects = Cliente.objects.filter(
+            latitud_4326__isnull=False, estado='C',
+            geolocation=True)
     columns = ['clientenro', 'nombre', 'direccion', 'posicion']
     objects = []
 
