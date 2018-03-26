@@ -92,7 +92,7 @@ def update_pendientes():
 
 
 def cargar_nodo():
-    clientes = Cliente.objects.all()
+    clientes = Cliente.objects.filter(nodo__isnull=True)
     cont = 0
     con = sigabdConnector(USER, PASS)
     for c in clientes:
