@@ -20,6 +20,12 @@
         white-space:nowrap;
         -webkit-overflow-scrolling:touch
     }
+    #tracking{
+        display:none;
+    }
+    html, body{
+        overflow-x: hidden;
+    }
 }
 @media (min-width:768px){
     @supports ((position:-webkit-sticky) or (position:sticky)){
@@ -44,4 +50,8 @@
 }
 .bd-navbar .dropdown-menu{
     font-size:.875rem
+}
+html, body{
+    height: 100%;
+    width: 100%;
 }

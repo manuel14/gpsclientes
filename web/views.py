@@ -19,11 +19,24 @@ logger = logging.getLogger(__name__)
 
 
 def index(request):
-    clientes = Cliente.objects.filter(estado='C').order_by('clientenro')
+    nodo = request.GET.get("nodo", None)
+    if nodo:
+        clientes = Cliente.objects.filter(
+            estado='C', nodo_fk__zonaid=int(nodo), geolocation=True).order_by('clientenro')
+        cant_pend = Cliente.objects.filter(
+            latitud_4326__isnull=True,
+            geolocation=True,
+            estado='C',
+            nodo_fk__zonaid=int(nodo)).count()
+    else:
+        clientes = Cliente.objects.filter(
+            estado='C', geolocation=True).order_by('clientenro')
+        cant_pend = Cliente.objects.filter(
+            latitud_4326__isnull=True, estado='C').count()
     page = request.GET.get('page')
     total = len(clientes)
     paginator = Paginator(clientes, 10)
-    cant_pend = Cliente.objects.filter(latitud_4326__isnull=True, estado='C').count()
+
     try:
         clientes_pags = paginator.page(page)
     except PageNotAnInteger:
@@ -33,7 +46,8 @@ def index(request):
 
     return render(request, 'web/index.html', {
         "clientes": clientes_pags, "cant_pend": cant_pend,
-        "total": total})
+        "total": total,
+    })
 
 
 def position(request):
@@ -72,23 +86,44 @@ def clientestable(request):
     start = int(request.GET['start'])
     length = int(request.GET['length'])
     global_search = request.GET['search[value]']
+    nodo = request.GET.get('nodo', None)
     if global_search:
-        all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=True) &
-                                              (Q(estado='C')) &
-                                              (Q(geolocation=True)) &
-                                             (Q(direccion__icontains=global_search)
-                                              | Q(clientenro__icontains=global_search)
-                                              | Q(nombre__icontains=global_search)
-                                              | Q(tira__icontains=global_search)
-                                              | Q(piso__icontains=global_search)
-                                              | Q(depto__icontains=global_search)
-                                              ))
+        if nodo:
+            all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=True) &
+                                                  (Q(estado='C')) &
+                                                  (Q(geolocation=True)) &
+                                                  (Q(nodo_fk__zonaid=nodo))&
+                                                 (Q(direccion__icontains=global_search)
+                                                  | Q(clientenro__icontains=global_search)
+                                                  | Q(nombre__icontains=global_search)
+                                                  | Q(tira__icontains=global_search)
+                                                  | Q(piso__icontains=global_search)
+                                                  | Q(depto__icontains=global_search)
+                                                  ))
+        else:
+            all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=True) &
+                                                  (Q(estado='C')) &
+                                                  (Q(geolocation=True)) &
+                                                 (Q(direccion__icontains=global_search)
+                                                  | Q(clientenro__icontains=global_search)
+                                                  | Q(nombre__icontains=global_search)
+                                                  | Q(tira__icontains=global_search)
+                                                  | Q(piso__icontains=global_search)
+                                                  | Q(depto__icontains=global_search)
+                                                  ))
     else:
-        all_objects = Cliente.objects.filter(
-            latitud_4326__isnull=True, estado='C',
-            geolocation=True
-        )
-    columns = ['clientenro', 'nombre', 'direccion', 'posicion', 'edificio']
+        if nodo:
+            all_objects = Cliente.objects.filter(
+                latitud_4326__isnull=True, estado='C',
+                geolocation=True,
+                nodo_fk__zonaid=nodo
+            )
+        else:
+            all_objects = Cliente.objects.filter(
+                latitud_4326__isnull=True, estado='C',
+                geolocation=True
+            )
+    columns = ['clientenro', 'direccion', 'posicion', 'edificio']
     objects = []
 
     for i in all_objects.order_by('clientenro')[start:start + length].values():
@@ -107,7 +142,10 @@ def clientestable(request):
                else dire if j == 'direccion' else html_pos if j == 'posicion' else html_edif for j in columns]
         objects.append(ret)
     filtered_count = all_objects.count()
-    total_count = Cliente.objects.filter(estado='C').count()
+    if nodo:
+        total_count = Cliente.objects.filter(estado='C', nodo_fk__zonaid=nodo).count()
+    else:
+        total_count = Cliente.objects.filter(estado='C').count()
     return JsonResponse({
         "draw": draw,
         "recordsTotal": total_count,
@@ -152,21 +190,30 @@ def table_completados(request):
     start = int(request.GET['start'])
     length = int(request.GET['length'])
     global_search = request.GET['search[value]']
+    nodo = request.GET.get("nodo", None)
     if global_search:
-        all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=False) &
-                                             (Q(estado='C')) &
-                                             (Q(geolocation=True))&
-                                             (Q(direccion__icontains=global_search)
-                                              | Q(clientenro__icontains=global_search)
-                                              | Q(nombre__icontains=global_search)
-                                              | Q(tira__icontains=global_search)
-                                              | Q(piso__icontains=global_search)
-                                              | Q(depto__icontains=global_search)
-                                              ))
+        if nodo:
+            all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=False) &
+                                                 (Q(estado='C')) &
+                                                 (Q(geolocation=True))&
+                                                 (Q(nodo_fk__zonaid=nodo))&
+                                                 (Q(direccion__icontains=global_search)
+                                                  | Q(clientenro__icontains=global_search)
+                                                  | Q(nombre__icontains=global_search)
+                                                  | Q(tira__icontains=global_search)
+                                                  | Q(piso__icontains=global_search)
+                                                  | Q(depto__icontains=global_search)
+                                                  ))
     else:
-        all_objects = Cliente.objects.filter(
-            latitud_4326__isnull=False, estado='C',
-            geolocation=True)
+        if nodo:
+            all_objects = Cliente.objects.filter(
+                latitud_4326__isnull=False, estado='C',
+                geolocation=True,
+                nodo_fk__zonaid=nodo)
+        else:
+            all_objects = Cliente.objects.filter(
+                latitud_4326__isnull=False, estado='C',
+                geolocation=True)
     columns = ['clientenro', 'nombre', 'direccion', 'posicion']
     objects = []
 
@@ -252,7 +299,7 @@ def clientes_geocode(request):
          Q(latitud_4326__isnull=True) &
          Q(longitud_4326__isnull=True) &
          Q(calle__limite_inferior__lte=F('puerta')) &
-         Q(calle__limite_superior__gte=F('puerta'))&
+         Q(calle__limite_superior__gte=F('puerta')) &
          Q(calle__geocode=True)
          )
         | (Q(latitud_4326__isnull=True) &

@@ -12,7 +12,60 @@
 {% block content %}
 <div class="container-fluid col-12">
       <div class="row">
-          <div class="col col-sm-9 offset-4 mt-3 mb-3">
+        <h1 class="text-center col-12 mt-2">Nodos</h1>
+          <nav class="navbar navbar-expand-lg navbar-light bg-light mt-3 mx-auto">
+            <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+              <a href="{% url 'index' %}?nodo=101">
+                <button type="button" class="btn btn-primary">1A</button>
+              </a>
+              <a href="{% url 'index' %}?nodo=102">
+                <button type="button" class="btn btn-primary">1B</button>
+              </a>
+              <a href="{% url 'index' %}?nodo=201">
+                <button type="button" class="btn btn-primary">2A</button>
+              </a>
+              <a href="{% url 'index' %}?nodo=202">
+                <button type="button" class="btn btn-primary">2B</button>
+              </a>
+                <div class="btn-group" role="group">            
+                  <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Más
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=301">3</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=401">4</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=501">5</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=601">6</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=701">7</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=801">8</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=901">9</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=1001">10A</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=1002">10B</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=1101">11</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=1201">12</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=1301">13</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=1401">14A</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=1402">14B</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=1501">15</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=1601">16</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=1701">17</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=1801">18</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=1901">19</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=2001">20</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=2101">21</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=2201">22</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=2301">23</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=2401">24</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=2501">25</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=2601">26</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=2701">27</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=2801">28</a>
+                    <a class="dropdown-item" href="{% url 'index' %}?nodo=2901">29</a>
+                  </div>
+                </div>
+            </div>
+          </nav> 
+          <div class="col col-sm-9 offset-md-4 offset-1 mt-3 mb-3">
               <h1 id="titulo">Clientes Completados ({{cant_comp}} de {{total}})</h1>
           </div>
       </div>
@@ -57,11 +110,14 @@
 	<script> 
 
     $(document).ready(function(){
-
+      var nodo = getUrlParameter('nodo');
       $('#tb_clientes_completados').DataTable( 
         {
           "drawCallback": function(settings, json) {
             $(".btn").addClass("btn-primary");
+            var filtrados = settings.json.recordsFiltered.toString();
+            var total = settings.json.recordsTotal.toString();
+            $("#titulo").text("Clientes pendientes("  + filtrados + " de " + total + ")" );
           },
           "language": {
             "paginate": {
@@ -70,13 +126,16 @@
               "last": "Último",
               "first": "1"
             },
-            "search": "Buscar"
+            "search": "Buscar",
+            "emptyTable": "No se encontraron registros",
+            "zeroRecords": "No se encontraron registros"
           },
           "processing": true,
           "serverSide": true,
           "orderable": false,
           "pagingType": "full",
-          "ajax": "/web/table_completados/"
+          "ajax": "/web/table_completados/",
+          "data": {"nodo": nodo}
         });
 
       $('#tb_clientes_completados').on('click', '.btn', function(){
@@ -84,6 +143,17 @@
         var position = getLocation(clientenro);
 
       });
+
+      function getUrlParameter(sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1));
+        var sURLVariables = sPageURL.split('&');
+        for (var i = 0; i < sURLVariables.length; i++) {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : sParameterName[1];
+            }
+        }
+      };
    
 		function getLocation(clientenro) {
         var clientenro = clientenro;

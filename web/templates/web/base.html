@@ -12,12 +12,12 @@
 </head>
 <body>
 	<header class="navbar navbar-expand navbar-dark flex-column flex-md-row bd-navbar">	
-		<a class="navbar-brand" href="{% url 'index' %}">
-			<img class="mr-2" style="width:15%;height:50%;" src="{% static 'web/img/logo.png' %}" alt="logo">
+		<a class="navbar-brand col-md-4 col-12 offset-md-0 offset-6" href="{% url 'index' %}">
+			<img class="mr-2 mb-3" style="width:8rem;height:2rem;" src="{% static 'web/img/logo.png' %}" alt="logo">
 			<h4>Gps clientes</h4></a>
-		<div class="navbar-nav-scroll">
+		<div class="navbar-nav-scroll col-md-4 col-12 offset-md-0 offset-3">
 			<ul class="navbar-nav bd-navbar-nav flex-row">
-				<li class="nav-item {% block activePendientes %}{% endblock activePendientes %}">
+				<li class="nav-item mr-md-2 {% block activePendientes %}{% endblock activePendientes %}">
 					<a class="nav-link " href="{% url 'index' %}">Pendientes</a>
 				</li>
 				<li class="nav-item {% block activeCompletados %}{% endblock activeCompletados %}">
