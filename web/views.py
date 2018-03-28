@@ -205,7 +205,7 @@ def table_completados(request):
                                                   | Q(depto__icontains=global_search)
                                                   ))
         else:
-            all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=True) &
+            all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=False) &
                                                   (Q(estado='C')) &
                                                   (Q(geolocation=True)) &
                                                  (Q(direccion__icontains=global_search)
