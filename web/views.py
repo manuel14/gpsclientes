@@ -204,6 +204,17 @@ def table_completados(request):
                                                   | Q(piso__icontains=global_search)
                                                   | Q(depto__icontains=global_search)
                                                   ))
+        else:
+            all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=True) &
+                                                  (Q(estado='C')) &
+                                                  (Q(geolocation=True)) &
+                                                 (Q(direccion__icontains=global_search)
+                                                  | Q(clientenro__icontains=global_search)
+                                                  | Q(nombre__icontains=global_search)
+                                                  | Q(tira__icontains=global_search)
+                                                  | Q(piso__icontains=global_search)
+                                                  | Q(depto__icontains=global_search)
+                                                  ))
     else:
         if nodo:
             all_objects = Cliente.objects.filter(
@@ -214,7 +225,7 @@ def table_completados(request):
             all_objects = Cliente.objects.filter(
                 latitud_4326__isnull=False, estado='C',
                 geolocation=True)
-    columns = ['clientenro', 'nombre', 'direccion', 'posicion']
+    columns = ['clientenro', 'direccion', 'posicion']
     objects = []
 
     for i in all_objects.order_by('clientenro')[start:start + length].values():
