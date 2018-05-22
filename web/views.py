@@ -371,12 +371,15 @@ def form_ubicados(request):
 
 
 def ubicados(request):
-    clientes = Cliente.objects.filter(latitud_4326__isnull=False, estado='C').values_list(
+    clientes = Cliente.objects.filter(
+        latitud_4326__isnull=False, estado='C').values_list(
         "clientenro", "latitud_4326", "longitud_4326").order_by("clientenro")
-    list_clientes = [{"clientenro":x, "lat": y, "long":z} for x,y,z in clientes]
+    list_clientes = [{"clientenro": x, "lat": y, "long": z}
+                     for x, y, z in clientes]
 
     return render(request, 'web/clustermap.html',
-                  {'clientes': json.dumps(list_clientes, cls=DjangoJSONEncoder)})
+                  {'clientes': json.dumps(list_clientes,
+                                          cls=DjangoJSONEncoder)})
 
 
 @csrf_exempt

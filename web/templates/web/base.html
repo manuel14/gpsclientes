@@ -22,7 +22,10 @@
 				</li>
 				<li class="nav-item {% block activeCompletados %}{% endblock activeCompletados %}">
 					<a class="nav-link " href="{% url 'completados' %}">Completados</a>
-				</li>			
+				</li>
+				<li class="nav-item {% block activeMapa %}{% endblock activeMapa %}">
+					<a class="nav-link " href="{% url 'ubicados' %}">Ubicados</a>
+				</li>		
 			</ul>
 		</div>
 	</header>
