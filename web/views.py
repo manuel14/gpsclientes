@@ -92,7 +92,7 @@ def clientestable(request):
             all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=True) &
                                                   (Q(estado='C')) &
                                                   (Q(geolocation=True)) &
-                                                  (Q(nodo_fk__zonaid=nodo))&
+                                                  (Q(nodo_fk__zonaid=nodo)) &
                                                  (Q(direccion__icontains=global_search)
                                                   | Q(clientenro__icontains=global_search)
                                                   | Q(nombre__icontains=global_search)
@@ -143,7 +143,8 @@ def clientestable(request):
         objects.append(ret)
     filtered_count = all_objects.count()
     if nodo:
-        total_count = Cliente.objects.filter(estado='C', nodo_fk__zonaid=nodo).count()
+        total_count = Cliente.objects.filter(
+            estado='C', nodo_fk__zonaid=nodo).count()
     else:
         total_count = Cliente.objects.filter(estado='C').count()
     return JsonResponse({
@@ -195,8 +196,8 @@ def table_completados(request):
         if nodo:
             all_objects = Cliente.objects.filter(Q(latitud_4326__isnull=False) &
                                                  (Q(estado='C')) &
-                                                 (Q(geolocation=True))&
-                                                 (Q(nodo_fk__zonaid=nodo))&
+                                                 (Q(geolocation=True)) &
+                                                 (Q(nodo_fk__zonaid=nodo)) &
                                                  (Q(direccion__icontains=global_search)
                                                   | Q(clientenro__icontains=global_search)
                                                   | Q(nombre__icontains=global_search)
@@ -371,9 +372,11 @@ def form_ubicados(request):
 
 def ubicados(request):
     clientes = Cliente.objects.filter(latitud_4326__isnull=False, estado='C').values_list(
-        "latitud_4326", "longitud_4326", "clientenro", "nombre", "direccion")
-    return render(request, 'web/map.html',
-                  {'clientes': json.dumps(list(clientes), cls=DjangoJSONEncoder)})
+        "clientenro", "latitud_4326", "longitud_4326").order_by("clientenro")
+    list_clientes = [{"clientenro":x, "lat": y, "long":z} for x,y,z in clientes]
+
+    return render(request, 'web/clustermap.html',
+                  {'clientes': json.dumps(list_clientes, cls=DjangoJSONEncoder)})
 
 
 @csrf_exempt
@@ -430,3 +433,7 @@ def osm_geocode(request):
     logger.info("ubicados:" + str(cont))
     json_out = json.dumps(no_ubicados)
     return JsonResponse(json_out, safe=False)
+
+
+def nodos(request):
+    return render(request, 'web/kmlmap.html')

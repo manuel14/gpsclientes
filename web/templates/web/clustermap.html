@@ -1,0 +1,30 @@
+{% extends 'web/base.html' %}
+{% load staticfiles %}
+{% block extraHead %}
+    <link rel="stylesheet" href="{% static 'web/css/map.css' %}">
+{% endblock extraHead %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center mx-auto">Clientes conectados</h1>
+            </div>
+        </div>
+        <div style="width:100%;height:100%;" class="row">
+            <div class="col-12">
+                <div id="map-container" style="height:70%;width:100%; margin-top:10px;" class="col-9 mx-auto">
+                    <div id="map" style="height:100%;width:100%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extraScripts %}
+    <script>
+        data = {{clientes|safe}};
+    </script>
+    <script src='{% static "web/js/moment.js" %}'></script>
+    <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD-uQyQ0bgrNo0DExcxqBorfMk1vjY4Q1c&libraries=visualization&callback=initMap" type="text/javascript"></script>
+    <script src="{% static 'web/js/clustermap.js' %}"></script>
+{% endblock extraScripts %}
